@@ -21,12 +21,100 @@ Spring Boot 기반 REST API 학습 프로젝트입니다.
 | Test | JUnit5, AssertJ, RestClient |
 | 저장소 | 인메모리 (`ConcurrentHashMap`) — *DB 전환 예정* |
 
-## 도메인 구조
+## 시스템 아키텍처
 
+### 계층 구조
+
+```mermaid
+flowchart TB
+    Client([Client])
+
+    subgraph Controller["Controller (@RestController)"]
+        MC[MemberController]
+        PC[PostController]
+        CC[CommentController]
+    end
+
+    subgraph Service["Service"]
+        MS[MemberService]
+        PS[PostService]
+        CS[CommentService]
+    end
+
+    subgraph Repository["Repository (interface)"]
+        MR[MemberRepository]
+        PR[PostRepository]
+        CR[CommentRepository]
+    end
+
+    subgraph Store["In-Memory Store (ConcurrentHashMap)"]
+        DB[(store)]
+    end
+
+    Advice[["GlobalExceptionHandler<br/>@RestControllerAdvice"]]
+
+    Client -->|JSON 요청/응답| Controller
+    Controller --> Service
+    Service --> Repository
+    Repository --> Store
+
+    PS -.작성자 조회.-> MS
+    CS -.작성자 조회.-> MS
+
+    Controller -.예외.-> Advice
+    Service -.예외.-> Advice
 ```
-Member (회원)
-  └─ 1:N ─ Post (게시글)      // 작성자 = memberId
-             └─ 1:N ─ Comment (댓글)  // 게시글 = postId, 작성자 = memberId
+
+- Controller는 요청/응답만, 비즈니스 로직은 Service, 데이터 접근은 Repository가 담당
+- `PostService`·`CommentService`는 작성자 이름을 얻기 위해 `MemberService`를 참조
+- 모든 예외는 `GlobalExceptionHandler`가 가로채 일관된 형식(`ErrorResponse`)으로 응답
+
+### 요청 처리 흐름 (게시글 생성)
+
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant Ctrl as PostController
+    participant Svc as PostService
+    participant Repo as PostRepository
+    participant MSvc as MemberService
+
+    C->>Ctrl: POST /api/posts (PostCreateRequest)
+    Ctrl->>Ctrl: @Valid 검증
+    Ctrl->>Svc: create(request)
+    Svc->>Repo: save(post)
+    Svc->>MSvc: findMemberById(memberId)
+    MSvc-->>Svc: Member (작성자)
+    Svc-->>Ctrl: PostResponse (authorName 포함)
+    Ctrl-->>C: 200 OK (JSON)
+```
+
+### 도메인 관계
+
+```mermaid
+erDiagram
+    MEMBER ||--o{ POST : writes
+    MEMBER ||--o{ COMMENT : writes
+    POST ||--o{ COMMENT : has
+
+    MEMBER {
+        Long id
+        String loginId
+        String name
+        String password
+    }
+    POST {
+        Long id
+        String title
+        String content
+        Long memberId
+    }
+    COMMENT {
+        Long id
+        String content
+        Long postId
+        Long memberId
+    }
 ```
 
 - 연관관계는 현재 **id 참조**(`memberId`, `postId`)로 표현
