@@ -1,11 +1,19 @@
 package hello.crud.member.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
 public class MemberCreateRequest {
 
+	@NotBlank(message = "아이디는 필수입니다")
 	private String loginId;
+
+	@NotBlank(message = "이름은 필수입니다")
 	private String name;
+
+	@NotBlank(message = "비밀번호는 필수입니다")
+	@Size(min = 4, message = "비밀번호는 4자 이상이어야 합니다")
 	private String password;
 }

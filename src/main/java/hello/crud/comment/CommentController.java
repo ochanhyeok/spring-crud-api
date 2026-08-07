@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,7 +22,7 @@ public class CommentController {
 	private final CommentService commentService;
 
 	@PostMapping
-	public CommentResponse createComment(@RequestBody CommentCreateRequest request) {
+	public CommentResponse createComment(@RequestBody @Valid CommentCreateRequest request) {
 		return commentService.create(request);
 	}
 

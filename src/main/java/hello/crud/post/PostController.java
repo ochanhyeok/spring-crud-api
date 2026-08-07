@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 @RestController
@@ -21,7 +22,7 @@ public class PostController {
 	private final PostService postService;
 
 	@PostMapping
-	public PostResponse createPost(@RequestBody PostCreateRequest request) {
+	public PostResponse createPost(@RequestBody @Valid PostCreateRequest request) {
 		return postService.create(request);
 	}
 
