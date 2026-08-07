@@ -1,11 +1,15 @@
 package hello.crud.comment.dto;
 
 import hello.crud.comment.Comment;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class CommentResponse {
 
 	private Long id;
