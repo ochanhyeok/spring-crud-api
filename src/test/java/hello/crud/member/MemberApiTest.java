@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import hello.crud.member.dto.MemberCreateRequest;
@@ -85,6 +86,27 @@ class MemberApiTest {
 			.containsExactlyInAnyOrder("ochhs0829", "ochhs0231");
 		assertThat(responses).extracting(MemberResponse::getName)
 			.containsExactlyInAnyOrder("오찬혁", "찬혁오");
+	}
+
+	@Test
+	void 없는_회원_조회() {
+		assertThatThrownBy(() ->
+			restClient.get().uri("/api/members/999")
+				.retrieve().body(MemberResponse.class)
+		).isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 잘못된_입력_400() {
+		// given
+		MemberCreateRequest request = new MemberCreateRequest();
+		request.setLoginId("");
+		request.setPassword("12");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.post().uri("/api/members")
+			.body(request).retrieve().body(MemberResponse.class))
+			.isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
 	private MemberResponse createMember(String loginId, String name) {

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import hello.crud.comment.dto.CommentCreateRequest;
@@ -110,6 +111,15 @@ class CommentApiTest {
 			.containsExactlyInAnyOrder(memberId, memberId, memberId);
 		assertThat(responses).extracting(CommentResponse::getAuthorName)
 			.containsExactlyInAnyOrder("오찬혁", "오찬혁", "오찬혁");
+	}
+
+	@Test
+	void 없는_댓글_조회() {
+		assertThatThrownBy(() -> {
+			restClient.get().uri("/api/comments/999")
+				.retrieve()
+				.body(CommentResponse.class);
+		}).isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
 	private MemberResponse createMember(String loginId, String name) {
