@@ -19,7 +19,8 @@ class MemberServiceTest {
 	@Autowired
 	MemberService memberService;
 	@Autowired
-	MemberRepository memberRepository;
+	MyBatisMemberRepository memberRepository;
+	// MemberRepository memberRepository;
 
 	@AfterEach
 	void afterEach() {

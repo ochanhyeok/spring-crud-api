@@ -17,8 +17,10 @@ import org.springframework.web.client.RestClient;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
 import hello.crud.member.MemberRepository;
+import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
+import hello.crud.post.MyBatisPostRepository;
 import hello.crud.post.PostRepository;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
@@ -30,11 +32,14 @@ class CommentApiTest {
 	int port;
 
 	@Autowired
-	MemberRepository memberRepository;
+	MyBatisMemberRepository memberRepository;
+	// MemberRepository memberRepository;
 	@Autowired
-	PostRepository postRepository;
+	MyBatisPostRepository postRepository;
+	// PostRepository postRepository;
 	@Autowired
-	CommentRepository commentRepository;
+	MyBatisCommentRepository commentRepository;
+	// CommentRepository commentRepository;
 
 	RestClient restClient;
 

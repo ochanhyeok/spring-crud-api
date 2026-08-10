@@ -15,6 +15,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import hello.crud.member.MemberRepository;
+import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
 import hello.crud.post.dto.PostCreateRequest;
@@ -27,9 +28,11 @@ class PostApiTest {
 	int port;
 
 	@Autowired
-	PostRepository postRepository;
+	MyBatisPostRepository postRepository;
+	// PostRepository postRepository;
 	@Autowired
-	MemberRepository memberRepository;
+	MyBatisMemberRepository memberRepository;
+	// MemberRepository memberRepository;
 
 	RestClient restClient;
 

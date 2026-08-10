@@ -24,7 +24,8 @@ class MemberApiTest {
 	int port;
 
 	@Autowired
-	MemberRepository memberRepository;
+	MyBatisMemberRepository memberRepository;
+	// MemberRepository memberRepository;
 
 	RestClient restClient;
 
