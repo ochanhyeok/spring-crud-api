@@ -3,6 +3,8 @@
 회원 / 게시글 / 댓글 CRUD를 구현하는 Spring Boot 학습 프로젝트입니다.
 **메모리 저장소로 먼저 구현한 뒤, DB 접근 기술을 단계적으로 교체(메모리 → MyBatis → JPA)** 하며 각 기술의 차이를 학습합니다.
 
+> MyBatis → JPA 마이그레이션 회고: [velog](https://velog.io/@ochhs0829/MyBatis%EC%97%90%EC%84%9C-JPA%EB%A1%9C-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98)
+
 ## 기술 스택
 
 | 구분 | 내용 |
@@ -10,9 +12,11 @@
 | Language | Java 21 |
 | Framework | Spring Boot 3.4.5 |
 | DB | MySQL 8.0 (Docker) |
-| 접근 기술 | MyBatis *(JPA 전환 예정)* |
+| 접근 기술 | Spring Data JPA |
 | Test | JUnit5, AssertJ, RestClient |
 | Build | Gradle |
+
+> MyBatis로 구현했던 버전은 [`mybatis` 브랜치](../../tree/mybatis)에 있습니다.
 
 ## 아키텍처
 
@@ -27,8 +31,8 @@ flowchart LR
 | 계층 | 역할 |
 |---|---|
 | Controller | 요청/응답 처리, `@Valid` 검증 |
-| Service | 비즈니스 로직, 작성자 조회 |
-| Repository | 데이터 접근 (인터페이스 + MyBatis 구현) |
+| Service | 비즈니스 로직, `@Transactional`, 작성자 조회 |
+| Repository | 데이터 접근 (`JpaRepository`) |
 | GlobalExceptionHandler | 전역 예외 → 일관된 에러 응답 |
 
 > Repository를 인터페이스로 분리해, 구현체만 교체(메모리 → MyBatis → JPA)하면 상위 계층은 그대로 유지됩니다.
@@ -43,7 +47,7 @@ erDiagram
 ```
 
 - `Member` (1) ─ (N) `Post` ─ (N) `Comment`
-- 연관관계는 현재 **id 참조**(`member_id`, `post_id`) → *JPA 전환 시 객체 참조(`@ManyToOne`)로 변경 예정*
+- `@ManyToOne`으로 객체 참조 매핑 (지연로딩)
 
 ## API
 
@@ -81,8 +85,11 @@ erDiagram
 - [x] 전역 예외 처리 · 입력 검증
 - [x] 단위 · API 통합 테스트
 - [x] MySQL (Docker) + MyBatis 전환
+- [x] JPA 전환 (`@ManyToOne` 연관관계, `@Transactional`)
 
 **진행 예정**
-- [ ] JPA 전환 (연관관계 매핑, 영속성, N+1 → fetch join)
+- [ ] N+1 문제 실측 및 해결 (Fetch Join · `@EntityGraph` · Batch Size)
+- [ ] 대용량 데이터 인덱스 최적화 (2천만 건 기준, 실행 계획 분석)
 - [ ] QueryDSL (동적 쿼리)
-- [ ] 페이징 · 로그인/인증 (JWT)
+- [ ] 페이징
+- [ ] 로그인/인증 (JWT)
