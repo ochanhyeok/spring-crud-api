@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.springframework.stereotype.Repository;
 
-@Repository
+// @Repository
 public class MemberRepositoryImpl implements MemberRepository {
 
 	private final Map<Long, Member> store = new ConcurrentHashMap<>();

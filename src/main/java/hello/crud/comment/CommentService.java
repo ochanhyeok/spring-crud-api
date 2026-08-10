@@ -14,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class CommentService {
 
-	private final CommentRepository commentRepository;
+	// private final CommentRepository commentRepository;
+	private final MyBatisCommentRepository commentRepository;
 	private final MemberService memberService;
 
 	public CommentResponse create(CommentCreateRequest request) {

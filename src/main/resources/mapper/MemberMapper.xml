@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org/DTD Mapper 3.0/EN"
+    "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="hello.crud.member.MemberMapper">
+    <insert id="save" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO member(login_id, name, password)
+        VALUES(#{loginId}, #{name}, #{password})
+    </insert>
+
+    <select id="findById" resultType="hello.crud.member.Member">
+        SELECT * FROM member WHERE id = #{id}
+    </select>
+
+    <select id="findAll" resultType="hello.crud.member.Member">
+        SELECT * FROM member;
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM member
+    </delete>
+</mapper>

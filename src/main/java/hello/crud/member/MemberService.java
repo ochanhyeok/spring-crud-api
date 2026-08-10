@@ -13,7 +13,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberService {
 
-	private final MemberRepository memberRepository;
+	// private final MemberRepository memberRepository;
+	private final MyBatisMemberRepository memberRepository;
 
 	public MemberResponse create(MemberCreateRequest request) {
 		Member member = new Member(request.getLoginId(), request.getName(), request.getPassword());

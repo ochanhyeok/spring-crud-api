@@ -14,7 +14,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PostService {
 
-	private final PostRepository postRepository;
+	// private final PostRepository postRepository;
+	private final MyBatisPostRepository postRepository;
 	private final MemberService memberService;
 
 	public PostResponse create(PostCreateRequest request) {
