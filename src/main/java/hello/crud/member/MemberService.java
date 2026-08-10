@@ -4,18 +4,20 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class MemberService {
 
-	// private final MemberRepository memberRepository;
-	private final MyBatisMemberRepository memberRepository;
+	private final MemberRepository memberRepository;
 
+	@Transactional
 	public MemberResponse create(MemberCreateRequest request) {
 		Member member = new Member(request.getLoginId(), request.getName(), request.getPassword());
 		memberRepository.save(member);

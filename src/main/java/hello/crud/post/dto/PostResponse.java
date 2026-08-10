@@ -24,7 +24,7 @@ public class PostResponse {
 			.id(post.getId())
 			.title(post.getTitle())
 			.content(post.getContent())
-			.memberId(post.getMemberId())
+			.memberId(post.getMember().getId())
 			.authorName(authorName)
 			.build();
 	}

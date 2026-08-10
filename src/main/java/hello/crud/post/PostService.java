@@ -4,22 +4,30 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.member.Member;
 import hello.crud.member.MemberService;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class PostService {
 
-	// private final PostRepository postRepository;
-	private final MyBatisPostRepository postRepository;
+	private final PostRepository postRepository;
 	private final MemberService memberService;
 
+	@Transactional
 	public PostResponse create(PostCreateRequest request) {
-		Post post = new Post(request.getTitle(), request.getContent(), request.getMemberId());
+		Member member = memberService.findMemberById(request.getMemberId());
+		Post post = Post.builder()
+			.title(request.getTitle())
+			.content(request.getContent())
+			.member(member)
+			.build();
 		postRepository.save(post);
 		return PostResponse.of(post, getAuthorName(post));
 	}
@@ -31,12 +39,16 @@ public class PostService {
 	}
 
 	public PostResponse findOne(Long id) {
-		Post post = postRepository.findById(id)
-			.orElseThrow(() -> new NoSuchElementException("게시글이 없습니다. id=" + id));
+		Post post = findPostById(id);
 		return PostResponse.of(post, getAuthorName(post));
 	}
 
+	public Post findPostById(Long id) {
+		return postRepository.findById(id)
+			.orElseThrow(() -> new NoSuchElementException("게시글이 없습니다. id=" + id));
+	}
+
 	private String getAuthorName(Post post) {
-		return memberService.findMemberById(post.getMemberId()).getName();
+		return post.getMember().getName();
 	}
 }

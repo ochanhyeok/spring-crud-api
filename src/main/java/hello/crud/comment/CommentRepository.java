@@ -1,11 +1,6 @@
 package hello.crud.comment;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CommentRepository {
-	Comment save(Comment comment);
-	Optional<Comment> findById(Long id);
-	List<Comment> findAll();
-	void clearStore();
+public interface CommentRepository extends JpaRepository<Comment, Long> {
 }

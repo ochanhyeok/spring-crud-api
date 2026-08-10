@@ -4,22 +4,34 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
+import hello.crud.member.Member;
 import hello.crud.member.MemberService;
+import hello.crud.post.Post;
+import hello.crud.post.PostService;
 import lombok.RequiredArgsConstructor;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class CommentService {
 
-	// private final CommentRepository commentRepository;
-	private final MyBatisCommentRepository commentRepository;
+	private final CommentRepository commentRepository;
 	private final MemberService memberService;
+	private final PostService postService;
 
+	@Transactional
 	public CommentResponse create(CommentCreateRequest request) {
-		Comment comment = new Comment(request.getContent(), request.getPostId(), request.getMemberId());
+		Member member = memberService.findMemberById(request.getMemberId());
+		Post post = postService.findPostById(request.getPostId());
+		Comment comment = Comment.builder()
+			.content(request.getContent())
+			.member(member)
+			.post(post)
+			.build();
 		commentRepository.save(comment);
 		return CommentResponse.of(comment, getAuthorName(comment));
 	}
@@ -37,6 +49,6 @@ public class CommentService {
 	}
 
 	private String getAuthorName(Comment comment) {
-		return memberService.findMemberById(comment.getMemberId()).getName();
+		return comment.getMember().getName();
 	}
 }

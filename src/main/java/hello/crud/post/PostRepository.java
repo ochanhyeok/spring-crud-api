@@ -1,12 +1,7 @@
 package hello.crud.post;
 
-import java.util.List;
-import java.util.Optional;
+import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface PostRepository {
-	Post save(Post post);
-	Optional<Post> findById(Long id);
-	List<Post> findAll();
-	void clearStore();
+public interface PostRepository extends JpaRepository<Post, Long> {
 
 }
