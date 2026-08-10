@@ -19,12 +19,11 @@ class MemberServiceTest {
 	@Autowired
 	MemberService memberService;
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 
 	@AfterEach
 	void afterEach() {
-		memberRepository.clearStore();
+		memberRepository.deleteAll();
 	}
 
 	@Test

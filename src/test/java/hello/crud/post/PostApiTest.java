@@ -15,7 +15,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import hello.crud.member.MemberRepository;
-import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
 import hello.crud.post.dto.PostCreateRequest;
@@ -28,11 +27,9 @@ class PostApiTest {
 	int port;
 
 	@Autowired
-	MyBatisPostRepository postRepository;
-	// PostRepository postRepository;
+	PostRepository postRepository;
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 
 	RestClient restClient;
 
@@ -43,8 +40,8 @@ class PostApiTest {
 
 	@AfterEach
 	void afterEach() {
-		postRepository.clearStore();
-		memberRepository.clearStore();
+		postRepository.deleteAll();
+		memberRepository.deleteAll();
 	}
 
 	@Test

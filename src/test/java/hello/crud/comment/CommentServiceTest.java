@@ -14,9 +14,7 @@ import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
 import hello.crud.member.MemberRepository;
 import hello.crud.member.MemberService;
-import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.post.MyBatisPostRepository;
 import hello.crud.post.PostRepository;
 import hello.crud.post.PostService;
 import hello.crud.post.dto.PostCreateRequest;
@@ -27,24 +25,21 @@ class CommentServiceTest {
 	@Autowired
 	CommentService commentService;
 	@Autowired
-	MyBatisCommentRepository commentRepository;
-	// CommentRepository commentRepository;
+	CommentRepository commentRepository;
 	@Autowired
 	MemberService memberService;
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 	@Autowired
 	PostService postService;
 	@Autowired
-	MyBatisPostRepository postRepository;
-	// PostRepository postRepository;
+	PostRepository postRepository;
 
 	@AfterEach
 	void afterEach() {
-		commentRepository.clearStore();
-		postRepository.clearStore();
-		memberRepository.clearStore();
+		commentRepository.deleteAll();
+		postRepository.deleteAll();
+		memberRepository.deleteAll();
 	}
 
 	@Test

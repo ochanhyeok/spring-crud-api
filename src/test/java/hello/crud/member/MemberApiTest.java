@@ -24,8 +24,7 @@ class MemberApiTest {
 	int port;
 
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 
 	RestClient restClient;
 
@@ -36,7 +35,7 @@ class MemberApiTest {
 
 	@AfterEach
 	void afterEach() {
-		memberRepository.clearStore();
+		memberRepository.deleteAll();
 	}
 
 	@Test

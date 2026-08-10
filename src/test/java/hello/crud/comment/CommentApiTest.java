@@ -17,10 +17,8 @@ import org.springframework.web.client.RestClient;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
 import hello.crud.member.MemberRepository;
-import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
-import hello.crud.post.MyBatisPostRepository;
 import hello.crud.post.PostRepository;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
@@ -32,14 +30,11 @@ class CommentApiTest {
 	int port;
 
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 	@Autowired
-	MyBatisPostRepository postRepository;
-	// PostRepository postRepository;
+	PostRepository postRepository;
 	@Autowired
-	MyBatisCommentRepository commentRepository;
-	// CommentRepository commentRepository;
+	CommentRepository commentRepository;
 
 	RestClient restClient;
 
@@ -50,9 +45,9 @@ class CommentApiTest {
 
 	@AfterEach
 	void afterEach() {
-		memberRepository.clearStore();
-		postRepository.clearStore();
-		commentRepository.clearStore();
+		commentRepository.deleteAll();
+		postRepository.deleteAll();
+		memberRepository.deleteAll();
 	}
 
 	@Test

@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import hello.crud.member.MemberRepository;
 import hello.crud.member.MemberService;
-import hello.crud.member.MyBatisMemberRepository;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
@@ -25,16 +24,14 @@ class PostServiceTest {
 	@Autowired
 	MemberService memberService;
 	@Autowired
-	MyBatisPostRepository postRepository;
-	// PostRepository postRepository;
+	PostRepository postRepository;
 	@Autowired
-	MyBatisMemberRepository memberRepository;
-	// MemberRepository memberRepository;
+	MemberRepository memberRepository;
 
 	@AfterEach
 	void afterEach() {
-		postRepository.clearStore();
-		memberRepository.clearStore();
+		postRepository.deleteAll();
+		memberRepository.deleteAll();
 	}
 
 	@Test
