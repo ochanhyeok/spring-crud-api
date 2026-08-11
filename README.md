@@ -3,7 +3,10 @@
 회원 / 게시글 / 댓글 CRUD를 구현하는 Spring Boot 학습 프로젝트입니다.
 **메모리 저장소로 먼저 구현한 뒤, DB 접근 기술을 단계적으로 교체(메모리 → MyBatis → JPA)** 하며 각 기술의 차이를 학습합니다.
 
-> MyBatis → JPA 마이그레이션 회고: [velog](https://velog.io/@ochhs0829/MyBatis%EC%97%90%EC%84%9C-JPA%EB%A1%9C-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98)
+**학습 회고 (velog)**
+> - [MyBatis에서 JPA로](https://velog.io/@ochhs0829/MyBatis%EC%97%90%EC%84%9C-JPA%EB%A1%9C-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98)
+> - [N+1 문제 실측과 해결](https://velog.io/@ochhs0829/N1-%EB%AC%B8%EC%A0%9C-%EC%8B%A4%EC%B8%A1%EA%B3%BC-%ED%95%B4%EA%B2%B0)
+> - [N+1 해결책 트레이드오프](https://velog.io/@ochhs0829/N1-%ED%95%B4%EA%B2%B0%EC%B1%85-%ED%8A%B8%EB%A0%88%EC%9D%B4%EB%93%9C%EC%98%A4%ED%94%84)
 
 ## 기술 스택
 
@@ -86,9 +89,9 @@ erDiagram
 - [x] 단위 · API 통합 테스트
 - [x] MySQL (Docker) + MyBatis 전환
 - [x] JPA 전환 (`@ManyToOne` 연관관계, `@Transactional`)
+- [x] N+1 문제 실측 및 해결 (Fetch Join · `@EntityGraph` · Batch Size)
 
 **진행 예정**
-- [ ] N+1 문제 실측 및 해결 (Fetch Join · `@EntityGraph` · Batch Size)
 - [ ] 대용량 데이터 인덱스 최적화 (2천만 건 기준, 실행 계획 분석)
 - [ ] QueryDSL (동적 쿼리)
 - [ ] 페이징
