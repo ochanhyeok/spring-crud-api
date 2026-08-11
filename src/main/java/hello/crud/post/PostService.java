@@ -33,7 +33,7 @@ public class PostService {
 	}
 
 	public List<PostResponse> findAll() {
-		return postRepository.findAll().stream()
+		return postRepository.findAllBy().stream()
 			.map(post -> PostResponse.of(post, getAuthorName(post)))
 			.toList();
 	}
