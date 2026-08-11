@@ -1,5 +1,9 @@
 package hello.crud.post;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import hello.crud.comment.Comment;
 import hello.crud.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -8,6 +12,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -27,6 +32,9 @@ public class Post {
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
+
+	@OneToMany(mappedBy = "post")
+	private List<Comment> comments = new ArrayList<>();
 
 	@Builder
 	public Post(String title, String content, Member member) {
