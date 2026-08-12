@@ -41,18 +41,18 @@ class MemberApiTest {
 	@Test
 	void 회원_생성() {
 		// given & when
-		MemberResponse response = createMember("ochhs0829", "chanhyeok");
+		MemberResponse response = createMember("ohchanhyeok123", "chanhyeok");
 
 		// then
 		assertThat(response.getId()).isNotNull();
-		assertThat(response.getLoginId()).isEqualTo("ochhs0829");
+		assertThat(response.getLoginId()).isEqualTo("ohchanhyeok123");
 		assertThat(response.getName()).isEqualTo("chanhyeok");
 	}
 
 	@Test
 	void 회원_찾기() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 
 		// when
 		MemberResponse response = restClient.get()
@@ -63,14 +63,14 @@ class MemberApiTest {
 		// then
 		assertThat(response.getId()).isNotNull();
 		assertThat(response.getId()).isEqualTo(memberId);
-		assertThat(response.getLoginId()).isEqualTo("ochhs0829");
+		assertThat(response.getLoginId()).isEqualTo("ohchanhyeok123");
 		assertThat(response.getName()).isEqualTo("오찬혁");
 	}
 
 	@Test
 	void 회원_목록() {
 		// given
-		createMember("ochhs0829", "오찬혁");
+		createMember("ohchanhyeok123", "오찬혁");
 		createMember("ochhs0231", "찬혁오");
 
 		// when
@@ -83,7 +83,7 @@ class MemberApiTest {
 		// then
 		assertThat(responses.size()).isEqualTo(2);
 		assertThat(responses).extracting(MemberResponse::getLoginId)
-			.containsExactlyInAnyOrder("ochhs0829", "ochhs0231");
+			.containsExactlyInAnyOrder("ohchanhyeok123", "ochhs0231");
 		assertThat(responses).extracting(MemberResponse::getName)
 			.containsExactlyInAnyOrder("오찬혁", "찬혁오");
 	}

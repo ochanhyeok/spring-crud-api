@@ -53,7 +53,7 @@ class CommentApiTest {
 	@Test
 	void 댓글_저장() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 		Long postId = createPost("hello world", memberId).getId();
 
 		// when
@@ -70,7 +70,7 @@ class CommentApiTest {
 	@Test
 	void 댓글_조회() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 		Long postId = createPost("hello world", memberId).getId();
 		Long commentId = createComment("java spring 마스터하기", postId, memberId).getId();
 
@@ -90,7 +90,7 @@ class CommentApiTest {
 	@Test
 	void 댓글_목록() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 		Long postId = createPost("hello world", memberId).getId();
 		createComment("코딩은 재밌다!!", postId, memberId);
 		createComment("코딩은 재밌다2!!", postId, memberId);

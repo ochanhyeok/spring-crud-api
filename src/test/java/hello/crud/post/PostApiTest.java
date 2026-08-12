@@ -47,7 +47,7 @@ class PostApiTest {
 	@Test
 	void 게시글_저장() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 
 		// when
 		PostResponse postResponse = createPost("오늘은 뭐 먹지??", memberId);
@@ -61,7 +61,7 @@ class PostApiTest {
 	@Test
 	void 게시글_조회() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 		Long postId = createPost("hello world", memberId).getId();
 
 		// when
@@ -80,7 +80,7 @@ class PostApiTest {
 	@Test
 	void 게시글_목록() {
 		// given
-		Long memberId = createMember("ochhs0829", "오찬혁").getId();
+		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
 		createPost("테스트코드 어렵다~", memberId);
 		createPost("hello world~", memberId);
 

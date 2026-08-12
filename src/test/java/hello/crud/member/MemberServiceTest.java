@@ -29,7 +29,7 @@ class MemberServiceTest {
 	@Test
 	void save() {
 		// given
-		MemberCreateRequest request = createRequest("ochhs0829");
+		MemberCreateRequest request = createRequest("ohchanhyeok123");
 
 		// when
 		MemberResponse response = memberService.create(request);
@@ -37,13 +37,13 @@ class MemberServiceTest {
 		// then
 		assertThat(response.getId()).isNotNull();
 		assertThat(response.getName()).isEqualTo("chanhyeok");
-		assertThat(response.getLoginId()).isEqualTo("ochhs0829");
+		assertThat(response.getLoginId()).isEqualTo("ohchanhyeok123");
 	}
 
 	@Test
 	void findOne() {
 		// given
-		MemberCreateRequest request = createRequest("ochhs0829");
+		MemberCreateRequest request = createRequest("ohchanhyeok123");
 		MemberResponse response = memberService.create(request);
 
 		// when
@@ -51,13 +51,13 @@ class MemberServiceTest {
 
 		// then
 		assertThat(memberService.findOne(saved.getId())).isNotNull();
-		assertThat(saved.getLoginId()).isEqualTo("ochhs0829");
+		assertThat(saved.getLoginId()).isEqualTo("ohchanhyeok123");
 	}
 
 	@Test
 	void findAll() {
 		// given
-		MemberCreateRequest request1 = createRequest("ochhs0829");
+		MemberCreateRequest request1 = createRequest("ohchanhyeok123");
 		MemberCreateRequest request2 = createRequest("ochhs0822");
 		MemberResponse response1 = memberService.create(request1);
 		MemberResponse response2 = memberService.create(request2);
@@ -69,14 +69,14 @@ class MemberServiceTest {
 		assertThat(responses.size()).isEqualTo(2);
 		assertThat(responses.get(0).getId()).isEqualTo(response1.getId());
 		assertThat(responses.get(1).getId()).isEqualTo(response2.getId());
-		assertThat(responses.get(0).getLoginId()).isEqualTo("ochhs0829");
+		assertThat(responses.get(0).getLoginId()).isEqualTo("ohchanhyeok123");
 		assertThat(responses.get(1).getLoginId()).isEqualTo("ochhs0822");
 	}
 
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		MemberCreateRequest request = createRequest("ochhs0829");
+		MemberCreateRequest request = createRequest("ohchanhyeok123");
 	 	memberService.create(request);
 
 		// when & then

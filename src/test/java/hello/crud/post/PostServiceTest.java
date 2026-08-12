@@ -37,7 +37,7 @@ class PostServiceTest {
 	@Test
 	void save() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 
 		// when
 		PostResponse response = postService.create(createPostRequest("제목", memberId));
@@ -53,7 +53,7 @@ class PostServiceTest {
 	@Test
 	void findOne() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		PostResponse response = postService.create(createPostRequest("제목", memberId));
 
 		// when
@@ -68,7 +68,7 @@ class PostServiceTest {
 	@Test
 	void findAll() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		Long memberId2 = createMember("ochhs0821");
 		PostResponse response1 = postService.create(createPostRequest("제목1", memberId));
 		PostResponse response2 = postService.create(createPostRequest("제목2", memberId2));
@@ -87,7 +87,7 @@ class PostServiceTest {
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		postService.create(createPostRequest("제목", memberId));
 
 		// when & then

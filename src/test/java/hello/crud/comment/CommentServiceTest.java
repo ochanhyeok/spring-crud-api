@@ -45,7 +45,7 @@ class CommentServiceTest {
 	@Test
 	void save() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		Long postId = createPost(memberId);
 
 		// when
@@ -62,7 +62,7 @@ class CommentServiceTest {
 	@Test
 	void findOne() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		Long postId = createPost(memberId);
 		CommentResponse response = commentService.create(createCommentRequest("hello world", postId, memberId));
 
@@ -79,7 +79,7 @@ class CommentServiceTest {
 	@Test
 	void findAll() {
 		// given
-		Long memberId1 = createMember("ochhs0829");
+		Long memberId1 = createMember("ohchanhyeok123");
 		Long memberId2 = createMember("ochhs0321");
 		Long postId1 = createPost(memberId1);
 		Long postId2 = createPost(memberId2);
@@ -102,7 +102,7 @@ class CommentServiceTest {
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		Long memberId = createMember("ochhs0829");
+		Long memberId = createMember("ohchanhyeok123");
 		Long postId = createPost(memberId);
 		commentService.create(createCommentRequest("hello world", postId, memberId));
 
