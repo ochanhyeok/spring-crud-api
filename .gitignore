@@ -36,6 +36,7 @@ out/
 ### VS Code ###
 .vscode/
 
-### 블로그 초안 / humanize 작업 폴더 (개인 기록) ###
+### 블로그 초안 / humanize 작업 폴더 / Claude 메모 (개인 기록) ###
 docs/
 _workspace/
+CLAUDE.md
