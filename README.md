@@ -1,7 +1,7 @@
 # CRUD 게시판 REST API
 
-회원 / 게시글 / 댓글 CRUD를 구현하는 Spring Boot 학습 프로젝트입니다.
-**메모리 저장소로 먼저 구현한 뒤, DB 접근 기술을 단계적으로 교체(메모리 → MyBatis → JPA)** 하며 각 기술의 차이를 학습합니다.
+회원 / 게시글 / 댓글 / 좋아요 기능을 갖춘 Spring Boot 학습 프로젝트입니다.
+먼저 메모리 저장소로 CRUD를 구현하고 **DB 접근 기술을 단계적으로 교체(메모리 → MyBatis → JPA)** 하며 각 기술의 차이를 익혔습니다. 지금은 여기에 기능을 붙이면서 마주치는 **JPA 성능·동시성 문제를 직접 측정하고 해결**하는 쪽으로 넓혀가고 있습니다.
 
 **학습 회고 (velog)**
 > - [MyBatis에서 JPA로](https://velog.io/@ochhs0829/MyBatis%EC%97%90%EC%84%9C-JPA%EB%A1%9C-%EB%A7%88%EC%9D%B4%EA%B7%B8%EB%A0%88%EC%9D%B4%EC%85%98)
