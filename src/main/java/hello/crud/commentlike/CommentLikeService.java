@@ -1,11 +1,13 @@
 package hello.crud.commentlike;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import hello.crud.comment.Comment;
 import hello.crud.comment.CommentRepository;
 import hello.crud.commentlike.dto.CommentLikeResponse;
+import hello.crud.common.DuplicateLikeException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -21,13 +23,23 @@ public class CommentLikeService {
 
 	@Transactional
 	public CommentLikeResponse like(Long commentId, Long memberId) {
+		if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
+			throw new DuplicateLikeException("이미 좋아요를 누른 댓글입니다.");
+		}
+
 		Comment comment = commentRepository.getReferenceById(commentId);
 		Member member = memberRepository.getReferenceById(memberId);
 		CommentLike commentLike = CommentLike.builder()
 			.comment(comment)
 			.member(member)
 			.build();
-		commentLikeRepository.save(commentLike);
+
+		try {
+			commentLikeRepository.save(commentLike);
+		} catch (DataIntegrityViolationException e) {
+			throw new DuplicateLikeException("이미 좋아요를 누른 댓글입니다.");
+		}
+
 		long likeCount = commentLikeRepository.countByCommentId(commentId);
 		return CommentLikeResponse.of(commentId, likeCount, true);
 	}

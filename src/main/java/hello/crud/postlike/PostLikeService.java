@@ -1,8 +1,10 @@
 package hello.crud.postlike;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.common.DuplicateLikeException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberRepository;
 import hello.crud.post.Post;
@@ -21,14 +23,24 @@ public class PostLikeService {
 
 	@Transactional
 	public PostLikeResponse like(Long postId, Long memberId) {
+		if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId)) {
+			throw new DuplicateLikeException("이미 좋아요를 누른 게시글입니다.");
+		}
+
 		Post post = postRepository.getReferenceById(postId);
 		Member member = memberRepository.getReferenceById(memberId);
 		PostLike postLike = PostLike.builder()
 			.post(post)
 			.member(member)
 			.build();
-		postLikeRepository.save(postLike);
+
+		try {
+			postLikeRepository.save(postLike);
+		} catch (DataIntegrityViolationException e) {
+			throw new DuplicateLikeException("이미 좋아요를 누른 게시글입니다.");
+		}
 		Long likeCount = postLikeRepository.countByPostId(postId);
+
 		return PostLikeResponse.of(postId, likeCount, true);
 	}
 

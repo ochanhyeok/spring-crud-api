@@ -38,4 +38,10 @@ public class GlobalExceptionHandler {
 		ErrorResponse error = new ErrorResponse(500, "서버 오류가 발생했습니다");
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
 	}
+
+	@ExceptionHandler(DuplicateLikeException.class)
+	public ResponseEntity<ErrorResponse> handleDuplicateLike(DuplicateLikeException e) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage());
+		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+	}
 }
