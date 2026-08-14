@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import hello.crud.comment.CommentRepository;
@@ -124,7 +124,7 @@ class CommentLikeApiTest {
 
 		// when & then
 		assertThatThrownBy(() -> createCommentLike(memberId, commentId))
-			.isInstanceOf(HttpServerErrorException.InternalServerError.class);
+			.isInstanceOf(HttpClientErrorException.Conflict.class);
 	}
 
 	private MemberResponse createMember(String loginId, String name) {

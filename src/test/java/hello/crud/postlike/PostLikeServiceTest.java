@@ -6,8 +6,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 
+import hello.crud.common.DuplicateLikeException;
 import hello.crud.member.MemberRepository;
 import hello.crud.member.MemberService;
 import hello.crud.member.dto.MemberCreateRequest;
@@ -79,7 +79,7 @@ class PostLikeServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> postLikeService.like(postId, memberId))
-			.isInstanceOf(DataIntegrityViolationException.class);
+			.isInstanceOf(DuplicateLikeException.class);
 	}
 
 	@Test

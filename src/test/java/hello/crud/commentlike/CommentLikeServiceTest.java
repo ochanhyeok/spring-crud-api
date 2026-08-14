@@ -6,12 +6,12 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
 
 import hello.crud.comment.CommentRepository;
 import hello.crud.comment.CommentService;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.commentlike.dto.CommentLikeResponse;
+import hello.crud.common.DuplicateLikeException;
 import hello.crud.member.MemberRepository;
 import hello.crud.member.MemberService;
 import hello.crud.member.dto.MemberCreateRequest;
@@ -88,7 +88,7 @@ class CommentLikeServiceTest {
 
 		// when & then
 		assertThatThrownBy(() -> commentLikeService.like(commentId, memberId))
-			.isInstanceOf(DataIntegrityViolationException.class);
+			.isInstanceOf(DuplicateLikeException.class);
 	}
 
 	@Test
