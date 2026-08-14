@@ -50,10 +50,13 @@ erDiagram
     POST ||--o{ COMMENT : has
     MEMBER ||--o{ POST_LIKE : likes
     POST ||--o{ POST_LIKE : "liked by"
+    MEMBER ||--o{ COMMENT_LIKE : likes
+    COMMENT ||--o{ COMMENT_LIKE : "liked by"
 ```
 
 - `Member` (1) ─ (N) `Post` ─ (N) `Comment`
-- `PostLike`는 `Member`·`Post`를 향한 단방향 `@ManyToOne`, `UNIQUE(post_id, member_id)`로 중복 방지
+- 좋아요는 대상별로 테이블을 분리(`post_like` / `comment_like`)하고, 각각 단방향 `@ManyToOne` 두 개로 매핑
+- `UNIQUE(post_id, member_id)` · `UNIQUE(comment_id, member_id)`로 중복 좋아요 방지
 - `@ManyToOne`으로 객체 참조 매핑 (지연로딩)
 
 ## API
@@ -69,6 +72,9 @@ erDiagram
 | `POST` | `/api/posts/{postId}/likes` | 게시글 좋아요 |
 | `DELETE` | `/api/posts/{postId}/likes` | 게시글 좋아요 취소 |
 | `GET` | `/api/posts/{postId}/likes/count` | 게시글 좋아요 수 |
+| `POST` | `/api/comments/{commentId}/likes` | 댓글 좋아요 |
+| `DELETE` | `/api/comments/{commentId}/likes` | 댓글 좋아요 취소 |
+| `GET` | `/api/comments/{commentId}/likes/count` | 댓글 좋아요 수 |
 
 > 게시글·댓글 응답에는 작성자 이름(`authorName`)이 포함됩니다.
 > 좋아요 응답에는 갱신된 개수(`likeCount`)와 눌렀는지 여부(`liked`)가 포함됩니다.
@@ -78,7 +84,7 @@ erDiagram
 - **DTO 분리** — 요청/응답 DTO를 도메인과 분리, 응답에서 민감 정보(비밀번호) 제외
 - **Repository 인터페이스화** — 구현체 교체로 DB 기술 전환 (메모리 → MyBatis → JPA)
 - **도메인 불변성** — `@Setter` 대신 생성자·의미 있는 메서드 사용
-- **전역 예외 처리** — `@RestControllerAdvice`로 404/400 등 일관된 에러 응답
+- **전역 예외 처리** — `@RestControllerAdvice`로 404/400/409 등 일관된 에러 응답. 하부 기술 예외(`DataIntegrityViolationException`)는 서비스에서 도메인 예외로 변환
 - **입력 검증** — `@Valid` + Bean Validation
 - **계층 책임 분리** — 내부용 도메인 반환 / API용 DTO 반환 구분
 
@@ -98,12 +104,12 @@ erDiagram
 - [x] MySQL (Docker) + MyBatis 전환
 - [x] JPA 전환 (`@ManyToOne` 연관관계, `@Transactional`)
 - [x] N+1 문제 실측 및 해결 (Fetch Join · `@EntityGraph` · Batch Size)
-- [x] 게시글 좋아요 (별도 테이블 · 유니크 제약 · COUNT 조회)
+- [x] 게시글 · 댓글 좋아요 (대상별 테이블 분리 · 유니크 제약 · COUNT 조회)
+- [x] 중복 좋아요 예외 처리 (선체크 + 제약 위반 변환 → 409 Conflict)
 
 **진행 예정**
-- [ ] 댓글 좋아요 (`comment_like`) · 중복 좋아요 예외 처리 (500 → 4xx)
+- [ ] 좋아요 중복 코드 리팩토링 점검
 - [ ] 조회수 (카운터 · 어뷰징 방지 · 원자적 UPDATE)
-- [ ] 카운터 중복 코드 리팩토링 점검
 - [ ] 좋아요 · 조회수 비정규화 + 동시성 (COUNT 부담 측정 → 컬럼 저장 → 갱신 유실 → 원자적 UPDATE)
 - [ ] 인기글 / 실시간 인기글 (정렬 · 시간 윈도우 집계)
 - [ ] 인덱스 최적화 (정렬 · 카운트 쿼리 실행 계획 분석, 복합 · 커버링 인덱스)
