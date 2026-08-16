@@ -2,57 +2,21 @@ package hello.crud.postlike;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
-import hello.crud.member.MemberRepository;
-import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.member.dto.MemberResponse;
-import hello.crud.post.PostRepository;
-import hello.crud.post.dto.PostCreateRequest;
-import hello.crud.post.dto.PostResponse;
 import hello.crud.postlike.dto.PostLikeCreateRequest;
 import hello.crud.postlike.dto.PostLikeResponse;
+import hello.crud.support.ApiTestSupport;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PostLikeApiTest {
-
-	@LocalServerPort
-	int port;
-
-	@Autowired
-	MemberRepository memberRepository;
-	@Autowired
-	PostLikeRepository postLikeRepository;
-	@Autowired
-	PostRepository postRepository;
-
-	RestClient restClient;
-
-	@BeforeEach
-	void beforeEach() {
-		restClient = RestClient.create("http://localhost:" + port);
-	}
-
-	@AfterEach
-	void afterEach() {
-		postLikeRepository.deleteAll();
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+class PostLikeApiTest extends ApiTestSupport {
 
 	@Test
 	void 좋아요_저장() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long postId = createPost("제목", memberId).getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
 
 		// when
 		PostLikeResponse postLikeResponse = createPostLike(memberId, postId);
@@ -67,8 +31,8 @@ class PostLikeApiTest {
 	@Test
 	void 좋아요_취소() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long postId = createPost("제목", memberId).getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
 		createPostLike(memberId, postId);
 
 		PostLikeCreateRequest request = new PostLikeCreateRequest();
@@ -89,9 +53,9 @@ class PostLikeApiTest {
 	@Test
 	void 좋아요_개수() {
 		// given
-		Long memberId1 = createMember("ohchanhyeok123", "손흥민").getId();
-		Long memberId2 = createMember("ohchanhyeok1334241", "호날두").getId();
-		Long postId = createPost("제목", memberId1).getId();
+		Long memberId1 = apiTestDataFactory.createMember("ohchanhyeok123", "손흥민").getId();
+		Long memberId2 = apiTestDataFactory.createMember("ohchanhyeok1334241", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId1).getId();
 
 		createPostLike(memberId1, postId);
 		createPostLike(memberId2, postId);
@@ -108,38 +72,14 @@ class PostLikeApiTest {
 	@Test
 	void 중복_좋아요() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "SON").getId();
-		Long postId = createPost("제목", memberId).getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "SON").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
 		createPostLike(memberId, postId);
 
 		// when & then
 		assertThatThrownBy(() -> {
 			createPostLike(memberId, postId);
 		}).isInstanceOf(HttpClientErrorException.Conflict.class);
-	}
-
-	private MemberResponse createMember(String loginId, String name) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName(name);
-
-		request.setPassword("1234");
-		return restClient.post().uri("/api/members")
-			.body(request)
-			.retrieve()
-			.body(MemberResponse.class);
-	}
-
-	private PostResponse createPost(String title, Long memberId) {
-		PostCreateRequest request = new PostCreateRequest();
-		request.setTitle(title);
-		request.setContent("내용");
-		request.setMemberId(memberId);
-
-		return restClient.post().uri("/api/posts")
-			.body(request)
-			.retrieve()
-			.body(PostResponse.class);
 	}
 
 	private PostLikeResponse createPostLike(Long memberId, Long postId) {

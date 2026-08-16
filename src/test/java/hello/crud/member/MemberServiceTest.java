@@ -5,26 +5,17 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
+import hello.crud.support.ServiceTestSupport;
 
-@SpringBootTest
-class MemberServiceTest {
+class MemberServiceTest extends ServiceTestSupport {
 
 	@Autowired
-	MemberService memberService;
-	@Autowired
-	MemberRepository memberRepository;
-
-	@AfterEach
-	void afterEach() {
-		memberRepository.deleteAll();
-	}
+	private MemberService memberService;
 
 	@Test
 	void save() {
@@ -77,7 +68,7 @@ class MemberServiceTest {
 	void findOne_없는_id_예외() {
 		// given
 		MemberCreateRequest request = createRequest("ohchanhyeok123");
-	 	memberService.create(request);
+		memberService.create(request);
 
 		// when & then
 		assertThatThrownBy(() -> memberService.findOne(999L))

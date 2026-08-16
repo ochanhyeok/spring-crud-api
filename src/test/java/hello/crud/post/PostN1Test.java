@@ -6,54 +6,36 @@ import java.util.List;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.stat.Statistics;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import hello.crud.comment.CommentRepository;
 import hello.crud.comment.CommentService;
 import hello.crud.comment.dto.CommentCreateRequest;
-import hello.crud.member.MemberRepository;
-import hello.crud.member.MemberService;
-import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.support.ServiceTestSupport;
 import jakarta.persistence.EntityManagerFactory;
 
-@SpringBootTest
-public class PostN1Test {
+class PostN1Test extends ServiceTestSupport {
 
 	@Autowired
-	MemberService memberService;
+	private PostService postService;
 	@Autowired
-	PostService postService;
+	private CommentService commentService;
 	@Autowired
-	PostRepository postRepository;
-	@Autowired
-	MemberRepository memberRepository;
+	private PostRepository postRepository;
+
 	@Autowired
 	EntityManagerFactory emf;
 	@Autowired
 	TransactionTemplate transactionTemplate;
-	@Autowired
-	private CommentRepository commentRepository;
-	@Autowired
-	private CommentService commentService;
-
-	@AfterEach
-	void afterEach() {
-		commentRepository.deleteAll();
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
 
 	@Test
 	void N1fetchJoinTest() {
 		// given
 		for (int i = 0; i < 5; i++) {
-			Long memberId = createMember("user" + i);
+			Long memberId = testDataFactory.createMember("user" + i);
 			postService.create(createPostRequest("제목" + i, memberId));
 		}
 
@@ -73,9 +55,9 @@ public class PostN1Test {
 	@Test
 	void N1batchSize() {
 		// given
-		Long memberId = createMember("user");
+		Long memberId = testDataFactory.createMember("user");
 		for (int i = 0; i < 5; i++) {
-			Long postId = createPost(memberId);
+			Long postId = testDataFactory.createPost(memberId);
 			commentService.create(createCommentRequest("댓글 1", postId, memberId));
 			commentService.create(createCommentRequest("댓글 2", postId, memberId));
 		}
@@ -94,16 +76,7 @@ public class PostN1Test {
 		// then
 		long queryCount = stats.getPrepareStatementCount();
 		System.out.println("=== 실행 쿼리 수 = " + queryCount + " ===");
-		assertThat(queryCount).isEqualTo(2); // 게시글 목록 1 + 댓글 컬렉션 5
-	}
-
-
-	private Long createMember(String loginId) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName("chanhyeok");
-		request.setPassword("password");
-		return memberService.create(request).getId();
+		assertThat(queryCount).isEqualTo(2);
 	}
 
 	private PostCreateRequest createPostRequest(String title, Long memberId) {
@@ -112,14 +85,6 @@ public class PostN1Test {
 		request.setContent("내용입니다.");
 		request.setMemberId(memberId);
 		return request;
-	}
-
-	private Long createPost(Long memberId) {
-		PostCreateRequest request = new PostCreateRequest();
-		request.setTitle("제목");
-		request.setContent("내용");
-		request.setMemberId(memberId);
-		return postService.create(request).getId();
 	}
 
 	private CommentCreateRequest createCommentRequest(String content, Long postId, Long memberId) {

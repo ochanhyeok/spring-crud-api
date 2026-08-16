@@ -4,50 +4,20 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
-import hello.crud.member.MemberRepository;
-import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.member.dto.MemberResponse;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.support.ApiTestSupport;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class PostApiTest {
-
-	@LocalServerPort
-	int port;
-
-	@Autowired
-	PostRepository postRepository;
-	@Autowired
-	MemberRepository memberRepository;
-
-	RestClient restClient;
-
-	@BeforeEach
-	void beforeEach() {
-		restClient = RestClient.create("http://localhost:" + port);
-	}
-
-	@AfterEach
-	void afterEach() {
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+class PostApiTest extends ApiTestSupport {
 
 	@Test
 	void 게시글_저장() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 
 		// when
 		PostResponse postResponse = createPost("오늘은 뭐 먹지??", memberId);
@@ -61,7 +31,7 @@ class PostApiTest {
 	@Test
 	void 게시글_조회() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 		Long postId = createPost("hello world", memberId).getId();
 
 		// when
@@ -80,7 +50,7 @@ class PostApiTest {
 	@Test
 	void 게시글_목록() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 		createPost("테스트코드 어렵다~", memberId);
 		createPost("hello world~", memberId);
 
@@ -109,18 +79,6 @@ class PostApiTest {
 					.body(PostResponse.class);
 			}
 		).isInstanceOf(HttpClientErrorException.NotFound.class);
-	}
-
-	private MemberResponse createMember(String loginId, String name) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName(name);
-
-		request.setPassword("1234");
-		return restClient.post().uri("/api/members")
-			.body(request)
-			.retrieve()
-			.body(MemberResponse.class);
 	}
 
 	private PostResponse createPost(String title, Long memberId) {

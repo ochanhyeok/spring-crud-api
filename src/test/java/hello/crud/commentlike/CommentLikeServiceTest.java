@@ -2,57 +2,24 @@ package hello.crud.commentlike;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import hello.crud.comment.CommentRepository;
-import hello.crud.comment.CommentService;
-import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.commentlike.dto.CommentLikeResponse;
 import hello.crud.common.DuplicateLikeException;
-import hello.crud.member.MemberRepository;
-import hello.crud.member.MemberService;
-import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.post.PostRepository;
-import hello.crud.post.PostService;
-import hello.crud.post.dto.PostCreateRequest;
+import hello.crud.support.ServiceTestSupport;
 
-@SpringBootTest
-class CommentLikeServiceTest {
+class CommentLikeServiceTest extends ServiceTestSupport {
 
 	@Autowired
-	CommentLikeRepository commentLikeRepository;
-	@Autowired
-	CommentRepository commentRepository;
-	@Autowired
-	PostRepository postRepository;
-	@Autowired
-	MemberRepository memberRepository;
-	@Autowired
-	CommentLikeService commentLikeService;
-	@Autowired
-	MemberService memberService;
-	@Autowired
-	PostService postService;
-	@Autowired
-	CommentService commentService;
-
-	@AfterEach
-	void afterEach() {
-		commentLikeRepository.deleteAll();
-		commentRepository.deleteAll();
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+	private CommentLikeService commentLikeService;
 
 	@Test
 	void like_성공() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
-		Long commentId = createComment(postId, memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
 
 		// when
 		CommentLikeResponse response = commentLikeService.like(commentId, memberId);
@@ -65,9 +32,9 @@ class CommentLikeServiceTest {
 	@Test
 	void unLike_성공() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
-		Long commentId = createComment(postId, memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
 		commentLikeService.like(commentId, memberId);
 
 		// when
@@ -81,9 +48,9 @@ class CommentLikeServiceTest {
 	@Test
 	void like_중복_예외() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
-		Long commentId = createComment(postId, memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
 		commentLikeService.like(commentId, memberId);
 
 		// when & then
@@ -94,10 +61,10 @@ class CommentLikeServiceTest {
 	@Test
 	void getLikeCount() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long memberId2 = createMember("ohchanhyeok123133");
-		Long postId = createPost(memberId);
-		Long commentId = createComment(postId, memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long memberId2 = testDataFactory.createMember("ohchanhyeok123133");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
 
 		commentLikeService.like(commentId, memberId);
 		commentLikeService.like(commentId, memberId2);
@@ -112,10 +79,10 @@ class CommentLikeServiceTest {
 	@Test
 	void hasLiked() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long memberId2 = createMember("ohchanhyeok123133");
-		Long postId = createPost(memberId);
-		Long commentId = createComment(postId, memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long memberId2 = testDataFactory.createMember("ohchanhyeok123133");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
 
 		commentLikeService.like(commentId, memberId);
 		commentLikeService.like(commentId, memberId2);
@@ -128,30 +95,6 @@ class CommentLikeServiceTest {
 		// then
 		assertThat(hasLikedMember).isFalse();
 		assertThat(hasLikedMember2).isTrue();
-	}
-
-	private Long createMember(String loginId) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName("chanhyeok");
-		request.setPassword("password");
-		return memberService.create(request).getId();
-	}
-
-	private Long createPost(Long memberId) {
-		PostCreateRequest request = new PostCreateRequest();
-		request.setTitle("제목");
-		request.setContent("내용");
-		request.setMemberId(memberId);
-		return postService.create(request).getId();
-	}
-
-	private Long createComment(Long postId, Long memberId) {
-		CommentCreateRequest request = new CommentCreateRequest();
-		request.setContent("댓글");
-		request.setPostId(postId);
-		request.setMemberId(memberId);
-		return commentService.create(request).getId();
 	}
 
 }

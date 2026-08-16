@@ -2,64 +2,22 @@ package hello.crud.commentlike;
 
 import static org.assertj.core.api.Assertions.*;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
-import hello.crud.comment.CommentRepository;
-import hello.crud.comment.dto.CommentCreateRequest;
-import hello.crud.comment.dto.CommentResponse;
 import hello.crud.commentlike.dto.CommentLikeCreateRequest;
 import hello.crud.commentlike.dto.CommentLikeResponse;
-import hello.crud.member.MemberRepository;
-import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.member.dto.MemberResponse;
-import hello.crud.post.PostRepository;
-import hello.crud.post.dto.PostCreateRequest;
-import hello.crud.post.dto.PostResponse;
+import hello.crud.support.ApiTestSupport;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class CommentLikeApiTest {
-
-	@LocalServerPort
-	int port;
-
-	RestClient restClient;
-
-	@Autowired
-	CommentRepository commentRepository;
-	@Autowired
-	MemberRepository memberRepository;
-	@Autowired
-	CommentLikeRepository commentLikeRepository;
-	@Autowired
-	PostRepository postRepository;
-
-	@BeforeEach
-	void beforeEach() {
-		restClient = RestClient.create("http://localhost:" + port);
-	}
-
-	@AfterEach
-	void afterEach() {
-		commentLikeRepository.deleteAll();
-		commentRepository.deleteAll();
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+class CommentLikeApiTest extends ApiTestSupport {
 
 	@Test
 	void 좋아요_저장() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long postId = createPost("제목", memberId).getId();
-		Long commentId = createComment(memberId, postId, "내용").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+		Long commentId = apiTestDataFactory.createComment(postId, memberId, "내용").getId();
 
 		// when
 		CommentLikeResponse response = createCommentLike(memberId, commentId);
@@ -73,9 +31,9 @@ class CommentLikeApiTest {
 	@Test
 	void 좋아요_취소() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long postId = createPost("제목", memberId).getId();
-		Long commentId = createComment(memberId, postId, "내용").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+		Long commentId = apiTestDataFactory.createComment(postId, memberId, "내용").getId();
 
 		createCommentLike(memberId, commentId);
 
@@ -97,10 +55,10 @@ class CommentLikeApiTest {
 	@Test
 	void 좋아요_개수() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long memberId2 = createMember("ohchanhyeok12121313", "손흥민").getId();
-		Long postId = createPost("제목", memberId).getId();
-		Long commentId = createComment(memberId, postId, "내용").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long memberId2 = apiTestDataFactory.createMember("ohchanhyeok12121313", "손흥민").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+		Long commentId = apiTestDataFactory.createComment(memberId, postId, "내용").getId();
 
 		createCommentLike(memberId, commentId);
 		createCommentLike(memberId2, commentId);
@@ -117,50 +75,14 @@ class CommentLikeApiTest {
 	@Test
 	void 중복_좋아요() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "호날두").getId();
-		Long postId = createPost("제목", memberId).getId();
-		Long commentId = createComment(memberId, postId, "내용").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "호날두").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+		Long commentId = apiTestDataFactory.createComment(memberId, postId, "내용").getId();
 		createCommentLike(memberId, commentId);
 
 		// when & then
 		assertThatThrownBy(() -> createCommentLike(memberId, commentId))
 			.isInstanceOf(HttpClientErrorException.Conflict.class);
-	}
-
-	private MemberResponse createMember(String loginId, String name) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName(name);
-		request.setPassword("1234");
-
-		return restClient.post().uri("/api/members")
-			.body(request)
-			.retrieve()
-			.body(MemberResponse.class);
-	}
-
-	private PostResponse createPost(String title, Long memberId) {
-		PostCreateRequest request = new PostCreateRequest();
-		request.setTitle(title);
-		request.setContent("내용");
-		request.setMemberId(memberId);
-
-		return restClient.post().uri("/api/posts")
-			.body(request)
-			.retrieve()
-			.body(PostResponse.class);
-	}
-
-	private CommentResponse createComment(Long memberId, Long postId, String content) {
-		CommentCreateRequest request = new CommentCreateRequest();
-		request.setPostId(postId);
-		request.setMemberId(memberId);
-		request.setContent(content);
-
-		return restClient.post().uri("/api/comments")
-			.body(request)
-			.retrieve()
-			.body(CommentResponse.class);
 	}
 
 	private CommentLikeResponse createCommentLike(Long memberId, Long commentId) {

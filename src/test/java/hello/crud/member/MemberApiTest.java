@@ -4,39 +4,15 @@ import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestClient;
 
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
+import hello.crud.support.ApiTestSupport;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-class MemberApiTest {
-
-	@LocalServerPort
-	int port;
-
-	@Autowired
-	MemberRepository memberRepository;
-
-	RestClient restClient;
-
-	@BeforeEach
-	void beforeEach() {
-		restClient = RestClient.create("http://localhost:" + port);
-	}
-
-	@AfterEach
-	void afterEach() {
-		memberRepository.deleteAll();
-	}
+class MemberApiTest extends ApiTestSupport {
 
 	@Test
 	void 회원_생성() {
@@ -52,7 +28,7 @@ class MemberApiTest {
 	@Test
 	void 회원_찾기() {
 		// given
-		Long memberId = createMember("ohchanhyeok123", "오찬혁").getId();
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 
 		// when
 		MemberResponse response = restClient.get()
@@ -70,8 +46,8 @@ class MemberApiTest {
 	@Test
 	void 회원_목록() {
 		// given
-		createMember("ohchanhyeok123", "오찬혁");
-		createMember("ochhs0231", "찬혁오");
+		apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁");
+		apiTestDataFactory.createMember("ochhs0231", "찬혁오");
 
 		// when
 		List<MemberResponse> responses = restClient.get()
@@ -109,12 +85,14 @@ class MemberApiTest {
 			.isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
-	private MemberResponse createMember(String loginId, String name) {
+	public MemberResponse createMember(String loginId, String name) {
 		MemberCreateRequest request = new MemberCreateRequest();
 		request.setLoginId(loginId);
 		request.setName(name);
-		request.setPassword("12345");
+		request.setPassword("1234");
 		return restClient.post().uri("/api/members")
-			.body(request).retrieve().body(MemberResponse.class);
+			.body(request)
+			.retrieve()
+			.body(MemberResponse.class);
 	}
 }

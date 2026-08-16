@@ -5,39 +5,22 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
-import hello.crud.member.MemberRepository;
-import hello.crud.member.MemberService;
-import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.support.ServiceTestSupport;
 
-@SpringBootTest
-class PostServiceTest {
+class PostServiceTest extends ServiceTestSupport {
 
 	@Autowired
-	PostService postService;
-	@Autowired
-	MemberService memberService;
-	@Autowired
-	PostRepository postRepository;
-	@Autowired
-	MemberRepository memberRepository;
-
-	@AfterEach
-	void afterEach() {
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+	private PostService postService;
 
 	@Test
 	void save() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 
 		// when
 		PostResponse response = postService.create(createPostRequest("제목", memberId));
@@ -53,7 +36,7 @@ class PostServiceTest {
 	@Test
 	void findOne() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 		PostResponse response = postService.create(createPostRequest("제목", memberId));
 
 		// when
@@ -68,8 +51,8 @@ class PostServiceTest {
 	@Test
 	void findAll() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long memberId2 = createMember("ochhs0821");
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long memberId2 = testDataFactory.createMember("ochhs0821");
 		PostResponse response1 = postService.create(createPostRequest("제목1", memberId));
 		PostResponse response2 = postService.create(createPostRequest("제목2", memberId2));
 
@@ -87,20 +70,12 @@ class PostServiceTest {
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 		postService.create(createPostRequest("제목", memberId));
 
 		// when & then
 		assertThatThrownBy(() -> postService.findOne(999L))
 			.isInstanceOf(NoSuchElementException.class);
-	}
-
-	private Long createMember(String loginId) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName("chanhyeok");
-		request.setPassword("password");
-		return memberService.create(request).getId();
 	}
 
 	private PostCreateRequest createPostRequest(String title, Long memberId) {

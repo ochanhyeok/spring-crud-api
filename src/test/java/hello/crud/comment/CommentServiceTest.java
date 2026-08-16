@@ -5,48 +5,23 @@ import static org.assertj.core.api.Assertions.*;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
-import hello.crud.member.MemberRepository;
-import hello.crud.member.MemberService;
-import hello.crud.member.dto.MemberCreateRequest;
-import hello.crud.post.PostRepository;
-import hello.crud.post.PostService;
-import hello.crud.post.dto.PostCreateRequest;
+import hello.crud.support.ServiceTestSupport;
 
-@SpringBootTest
-class CommentServiceTest {
+class CommentServiceTest extends ServiceTestSupport {
 
 	@Autowired
-	CommentService commentService;
-	@Autowired
-	CommentRepository commentRepository;
-	@Autowired
-	MemberService memberService;
-	@Autowired
-	MemberRepository memberRepository;
-	@Autowired
-	PostService postService;
-	@Autowired
-	PostRepository postRepository;
-
-	@AfterEach
-	void afterEach() {
-		commentRepository.deleteAll();
-		postRepository.deleteAll();
-		memberRepository.deleteAll();
-	}
+	private CommentService commentService;
 
 	@Test
 	void save() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
 
 		// when
 		CommentResponse response = commentService.create(createCommentRequest("코딩은 재밌다.", postId, memberId));
@@ -62,8 +37,8 @@ class CommentServiceTest {
 	@Test
 	void findOne() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
 		CommentResponse response = commentService.create(createCommentRequest("hello world", postId, memberId));
 
 		// when
@@ -79,10 +54,10 @@ class CommentServiceTest {
 	@Test
 	void findAll() {
 		// given
-		Long memberId1 = createMember("ohchanhyeok123");
-		Long memberId2 = createMember("ochhs0321");
-		Long postId1 = createPost(memberId1);
-		Long postId2 = createPost(memberId2);
+		Long memberId1 = testDataFactory.createMember("ohchanhyeok123");
+		Long memberId2 = testDataFactory.createMember("ochhs0321");
+		Long postId1 = testDataFactory.createPost(memberId1);
+		Long postId2 = testDataFactory.createPost(memberId2);
 		commentService.create(createCommentRequest("hello world1", postId1, memberId1));
 		commentService.create(createCommentRequest("hello world2", postId2, memberId2));
 
@@ -102,29 +77,13 @@ class CommentServiceTest {
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		Long memberId = createMember("ohchanhyeok123");
-		Long postId = createPost(memberId);
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
 		commentService.create(createCommentRequest("hello world", postId, memberId));
 
 		// when & then
 		assertThatThrownBy(() -> commentService.findOne(99L))
 			.isInstanceOf(NoSuchElementException.class);
-	}
-
-	private Long createMember(String loginId) {
-		MemberCreateRequest request = new MemberCreateRequest();
-		request.setLoginId(loginId);
-		request.setName("chanhyeok");
-		request.setPassword("password");
-		return memberService.create(request).getId();
-	}
-
-	private Long createPost(Long memberId) {
-		PostCreateRequest request = new PostCreateRequest();
-		request.setTitle("제목");
-		request.setContent("내용");
-		request.setMemberId(memberId);
-		return postService.create(request).getId();
 	}
 
 	private CommentCreateRequest createCommentRequest(String content, Long postId, Long memberId) {
