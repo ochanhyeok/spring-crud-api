@@ -81,6 +81,25 @@ class PostApiTest extends ApiTestSupport {
 		).isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
+	@Test
+	void 조회수_두번_조회() {
+		// given
+		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "손흥민").getId();
+		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+
+		// when
+		restClient.get().uri("/api/posts/" + postId)
+			.retrieve()
+			.body(PostResponse.class);
+		PostResponse response = restClient.get().uri("/api/posts/" + postId)
+			.retrieve()
+			.body(PostResponse.class);
+
+		// then
+		assertThat(response.getId()).isEqualTo(postId);
+		assertThat(response.getViewCount()).isEqualTo(2);
+	}
+
 	private PostResponse createPost(String title, Long memberId) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);

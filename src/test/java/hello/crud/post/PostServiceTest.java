@@ -8,6 +8,8 @@ import java.util.NoSuchElementException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import hello.crud.comment.CommentService;
+import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
 import hello.crud.support.ServiceTestSupport;
@@ -16,6 +18,8 @@ class PostServiceTest extends ServiceTestSupport {
 
 	@Autowired
 	private PostService postService;
+	@Autowired
+	private CommentService commentService;
 
 	@Test
 	void save() {
@@ -46,6 +50,7 @@ class PostServiceTest extends ServiceTestSupport {
 		assertThat(savedPost.getId()).isNotNull();
 		assertThat(savedPost.getTitle()).isEqualTo("제목");
 		assertThat(savedPost.getAuthorName()).isEqualTo("chanhyeok");
+		assertThat(savedPost.getViewCount()).isEqualTo(1);
 	}
 
 	@Test
@@ -78,11 +83,46 @@ class PostServiceTest extends ServiceTestSupport {
 			.isInstanceOf(NoSuchElementException.class);
 	}
 
+	@Test
+	void 조회수_증가() {
+		// given
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
+
+		// when
+		postService.findOne(postId);
+		PostResponse response = postService.findOne(postId);
+
+		// then
+		assertThat(response.getViewCount()).isEqualTo(2);
+	}
+
+	@Test
+	void 내부_조회로는_조회수_증가x() {
+		// given
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long postId = testDataFactory.createPost(memberId);
+
+		// when
+		commentService.create(createCommentRequest("내용", memberId, postId));
+
+		// then
+		assertThat(postService.findPostById(postId).getViewCount()).isEqualTo(0);
+	}
+
 	private PostCreateRequest createPostRequest(String title, Long memberId) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);
 		request.setContent("내용입니다.");
 		request.setMemberId(memberId);
+		return request;
+	}
+
+	private CommentCreateRequest createCommentRequest(String content, Long memberId, Long postId) {
+		CommentCreateRequest request = new CommentCreateRequest();
+		request.setContent(content);
+		request.setMemberId(memberId);
+		request.setPostId(postId);
 		return request;
 	}
 }
