@@ -28,6 +28,7 @@ public class Post {
 	private Long id;
 	private String title;
 	private String content;
+	private long viewCount = 0L;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")

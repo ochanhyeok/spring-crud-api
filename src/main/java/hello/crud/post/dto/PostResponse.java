@@ -17,6 +17,7 @@ public class PostResponse {
 	private String content;
 	private Long memberId;
 	private String authorName;
+	private long viewCount;
 
 
 	public static PostResponse of(Post post, String authorName) {
@@ -26,6 +27,7 @@ public class PostResponse {
 			.content(post.getContent())
 			.memberId(post.getMember().getId())
 			.authorName(authorName)
+			.viewCount(post.getViewCount())
 			.build();
 	}
 }

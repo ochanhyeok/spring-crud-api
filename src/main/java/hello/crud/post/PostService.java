@@ -38,7 +38,9 @@ public class PostService {
 			.toList();
 	}
 
+	@Transactional
 	public PostResponse findOne(Long id) {
+		postRepository.increaseViewCount(id);
 		Post post = findPostById(id);
 		return PostResponse.of(post, getAuthorName(post));
 	}
