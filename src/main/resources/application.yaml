@@ -7,6 +7,7 @@ spring:
     username: root
     password: root
 #    driver-class-name: com.mysql.cj.jdbc.Driver
+
   jpa:
     hibernate:
       ddl-auto: create
@@ -16,14 +17,8 @@ spring:
         format_sql: true
         generate_statistics: true
         default_batch_fetch_size: 100
+    defer-datasource-initialization: true
 
   sql:
     init:
-      mode: always # schema.sql 자동실행
-
-
-
-#mybatis:
-#  configuration:
-#    map-underscore-to-camel-case: true
-#  mapper-locations: classpath:mapper/*.xml
+      mode: always # data.sql 자동실행
