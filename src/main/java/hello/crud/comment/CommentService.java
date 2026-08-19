@@ -24,8 +24,8 @@ public class CommentService {
 	private final PostService postService;
 
 	@Transactional
-	public CommentResponse create(CommentCreateRequest request) {
-		Member member = memberService.findMemberById(request.getMemberId());
+	public CommentResponse create(CommentCreateRequest request, Long memberId) {
+		Member member = memberService.findMemberById(memberId);
 		Post post = postService.findPostById(request.getPostId());
 		Comment comment = Comment.builder()
 			.content(request.getContent())

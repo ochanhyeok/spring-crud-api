@@ -11,6 +11,5 @@ public class CommentCreateRequest {
 	@Size(max = 30)
 	private String content;
 	private Long postId;
-	private Long memberId;
 
 }

@@ -15,6 +15,4 @@ public class PostCreateRequest {
 	@Size(min = 2, max = 100)
 	private String content;
 
-	private Long memberId;
-
 }

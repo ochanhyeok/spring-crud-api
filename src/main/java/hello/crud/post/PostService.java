@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.auth.LoginMember;
 import hello.crud.member.Member;
 import hello.crud.member.MemberService;
 import hello.crud.post.dto.PostCreateRequest;
@@ -21,8 +22,8 @@ public class PostService {
 	private final MemberService memberService;
 
 	@Transactional
-	public PostResponse create(PostCreateRequest request) {
-		Member member = memberService.findMemberById(request.getMemberId());
+	public PostResponse create(PostCreateRequest request, Long memberId) {
+		Member member = memberService.findMemberById(memberId);
 		Post post = Post.builder()
 			.title(request.getTitle())
 			.content(request.getContent())
