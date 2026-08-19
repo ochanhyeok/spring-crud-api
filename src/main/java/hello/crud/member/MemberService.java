@@ -3,6 +3,7 @@ package hello.crud.member;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,11 @@ import lombok.RequiredArgsConstructor;
 public class MemberService {
 
 	private final MemberRepository memberRepository;
+	private final PasswordEncoder passwordEncoder;
 
 	@Transactional
 	public MemberResponse create(MemberCreateRequest request) {
-		Member member = new Member(request.getLoginId(), request.getName(), request.getPassword());
+		Member member = new Member(request.getLoginId(), request.getName(), passwordEncoder.encode(request.getPassword()));
 		memberRepository.save(member);
 		return MemberResponse.of(member);
 	}
