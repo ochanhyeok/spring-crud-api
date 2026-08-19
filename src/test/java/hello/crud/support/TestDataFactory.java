@@ -30,23 +30,20 @@ public class TestDataFactory {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle("제목");
 		request.setContent("내용");
-		request.setMemberId(memberId);
-		return postService.create(request).getId();
+		return postService.create(request, memberId).getId();
 	}
 
 	public Long createPost(String title, Long memberId) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);
 		request.setContent("내용");
-		request.setMemberId(memberId);
-		return postService.create(request).getId();
+		return postService.create(request, memberId).getId();
 	}
 
 	public Long createComment(Long postId, Long memberId) {
 		CommentCreateRequest request = new CommentCreateRequest();
 		request.setContent("내용");
 		request.setPostId(postId);
-		request.setMemberId(memberId);
-		return commentService.create(request).getId();
+		return commentService.create(request, memberId).getId();
 	}
 }

@@ -17,10 +17,11 @@ class PostApiTest extends ApiTestSupport {
 	@Test
 	void 게시글_저장() {
 		// given
-		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
+		apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
+		login("ohchanhyeok123");
 
 		// when
-		PostResponse postResponse = createPost("오늘은 뭐 먹지??", memberId);
+		PostResponse postResponse = createPost("오늘은 뭐 먹지??");
 
 		// then
 		assertThat(postResponse.getId()).isNotNull();
@@ -31,8 +32,9 @@ class PostApiTest extends ApiTestSupport {
 	@Test
 	void 게시글_조회() {
 		// given
-		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
-		Long postId = createPost("hello world", memberId).getId();
+		apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
+		login("ohchanhyeok123");
+		Long postId = createPost("hello world").getId();
 
 		// when
 		PostResponse response = restClient.get()
@@ -51,8 +53,9 @@ class PostApiTest extends ApiTestSupport {
 	void 게시글_목록() {
 		// given
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
-		createPost("테스트코드 어렵다~", memberId);
-		createPost("hello world~", memberId);
+		login("ohchanhyeok123");
+		createPost("테스트코드 어렵다~");
+		createPost("hello world~");
 
 		// when
 		List<PostResponse> responses = restClient.get()
@@ -73,6 +76,7 @@ class PostApiTest extends ApiTestSupport {
 
 	@Test
 	void 없는_게시글_조회() {
+		// when & then
 		assertThatThrownBy(() -> {
 				restClient.get().uri("/api/posts/999")
 					.retrieve()
@@ -85,7 +89,8 @@ class PostApiTest extends ApiTestSupport {
 	void 조회수_두번_조회() {
 		// given
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "손흥민").getId();
-		Long postId = apiTestDataFactory.createPost("제목", memberId).getId();
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
 
 		// when
 		restClient.get().uri("/api/posts/" + postId)
@@ -100,11 +105,45 @@ class PostApiTest extends ApiTestSupport {
 		assertThat(response.getViewCount()).isEqualTo(2);
 	}
 
-	private PostResponse createPost(String title, Long memberId) {
+	@Test
+	void 인증_없이_게시글_작성_401() {
+		// given - login()을 부르지 않음
+
+		PostCreateRequest request = new PostCreateRequest();
+		request.setTitle("제목");
+		request.setContent("내용");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.post().uri("/api/posts")
+			.body(request)
+			.retrieve()
+			.body(PostResponse.class))
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+	}
+
+	@Test
+	void 조회는_인증_없이_가능() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+
+		// 세션을 버림
+		setUpRestClient();
+
+		// when
+		PostResponse response = restClient.get().uri("/api/posts/" + postId)
+			.retrieve()
+			.body(PostResponse.class);
+
+		// then
+		assertThat(response.getTitle()).isEqualTo("제목");
+	}
+
+	private PostResponse createPost(String title) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);
 		request.setContent("내용");
-		request.setMemberId(memberId);
 
 		return restClient.post().uri("/api/posts")
 			.body(request)

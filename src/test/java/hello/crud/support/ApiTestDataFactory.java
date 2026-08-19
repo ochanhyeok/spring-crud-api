@@ -26,9 +26,8 @@ public class ApiTestDataFactory {
 			.body(MemberResponse.class);
 	}
 
-	public PostResponse createPost(String title, Long memberId) {
+	public PostResponse createPost(String title) {
 		PostCreateRequest request = new PostCreateRequest();
-		request.setMemberId(memberId);
 		request.setTitle(title);
 		request.setContent("내용");
 
@@ -38,9 +37,8 @@ public class ApiTestDataFactory {
 			.body(PostResponse.class);
 	}
 
-	public CommentResponse createComment(Long postId, Long memberId, String content) {
+	public CommentResponse createComment(Long postId, String content) {
 		CommentCreateRequest request = new CommentCreateRequest();
-		request.setMemberId(memberId);
 		request.setPostId(postId);
 		request.setContent(content);
 

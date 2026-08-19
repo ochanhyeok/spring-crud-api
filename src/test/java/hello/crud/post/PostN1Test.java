@@ -36,7 +36,7 @@ class PostN1Test extends ServiceTestSupport {
 		// given
 		for (int i = 0; i < 5; i++) {
 			Long memberId = testDataFactory.createMember("user" + i);
-			postService.create(createPostRequest("제목" + i, memberId));
+			postService.create(createPostRequest("제목" + i), memberId);
 		}
 
 		Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
@@ -58,8 +58,8 @@ class PostN1Test extends ServiceTestSupport {
 		Long memberId = testDataFactory.createMember("user");
 		for (int i = 0; i < 5; i++) {
 			Long postId = testDataFactory.createPost(memberId);
-			commentService.create(createCommentRequest("댓글 1", postId, memberId));
-			commentService.create(createCommentRequest("댓글 2", postId, memberId));
+			commentService.create(createCommentRequest("댓글 1", postId), memberId);
+			commentService.create(createCommentRequest("댓글 2", postId), memberId);
 		}
 
 		Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
@@ -79,19 +79,17 @@ class PostN1Test extends ServiceTestSupport {
 		assertThat(queryCount).isEqualTo(2);
 	}
 
-	private PostCreateRequest createPostRequest(String title, Long memberId) {
+	private PostCreateRequest createPostRequest(String title) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);
 		request.setContent("내용입니다.");
-		request.setMemberId(memberId);
 		return request;
 	}
 
-	private CommentCreateRequest createCommentRequest(String content, Long postId, Long memberId) {
+	private CommentCreateRequest createCommentRequest(String content, Long postId) {
 		CommentCreateRequest request = new CommentCreateRequest();
 		request.setContent(content);
 		request.setPostId(postId);
-		request.setMemberId(memberId);
 		return request;
 	}
 }

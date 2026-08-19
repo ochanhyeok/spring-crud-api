@@ -24,7 +24,7 @@ class CommentServiceTest extends ServiceTestSupport {
 		Long postId = testDataFactory.createPost(memberId);
 
 		// when
-		CommentResponse response = commentService.create(createCommentRequest("코딩은 재밌다.", postId, memberId));
+		CommentResponse response = commentService.create(createCommentRequest("코딩은 재밌다.", postId), memberId);
 
 		// then
 		assertThat(response.getId()).isNotNull();
@@ -39,7 +39,7 @@ class CommentServiceTest extends ServiceTestSupport {
 		// given
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 		Long postId = testDataFactory.createPost(memberId);
-		CommentResponse response = commentService.create(createCommentRequest("hello world", postId, memberId));
+		CommentResponse response = commentService.create(createCommentRequest("hello world", postId), memberId);
 
 		// when
 		CommentResponse savedComment = commentService.findOne(response.getId());
@@ -58,8 +58,8 @@ class CommentServiceTest extends ServiceTestSupport {
 		Long memberId2 = testDataFactory.createMember("ochhs0321");
 		Long postId1 = testDataFactory.createPost(memberId1);
 		Long postId2 = testDataFactory.createPost(memberId2);
-		commentService.create(createCommentRequest("hello world1", postId1, memberId1));
-		commentService.create(createCommentRequest("hello world2", postId2, memberId2));
+		commentService.create(createCommentRequest("hello world1", postId1), memberId1);
+		commentService.create(createCommentRequest("hello world2", postId2), memberId2);
 
 		// when
 		List<CommentResponse> commentResponses = commentService.findAll();
@@ -79,18 +79,17 @@ class CommentServiceTest extends ServiceTestSupport {
 		// given
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 		Long postId = testDataFactory.createPost(memberId);
-		commentService.create(createCommentRequest("hello world", postId, memberId));
+		commentService.create(createCommentRequest("hello world", postId), memberId);
 
 		// when & then
 		assertThatThrownBy(() -> commentService.findOne(99L))
 			.isInstanceOf(NoSuchElementException.class);
 	}
 
-	private CommentCreateRequest createCommentRequest(String content, Long postId, Long memberId) {
+	private CommentCreateRequest createCommentRequest(String content, Long postId) {
 		CommentCreateRequest request = new CommentCreateRequest();
 		request.setContent(content);
 		request.setPostId(postId);
-		request.setMemberId(memberId);
 		return request;
 	}
 }

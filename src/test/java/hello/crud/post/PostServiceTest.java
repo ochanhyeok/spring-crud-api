@@ -27,7 +27,7 @@ class PostServiceTest extends ServiceTestSupport {
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 
 		// when
-		PostResponse response = postService.create(createPostRequest("제목", memberId));
+		PostResponse response = postService.create(createPostRequest("제목"), memberId);
 
 		// then
 		assertThat(response.getId()).isNotNull();
@@ -41,7 +41,7 @@ class PostServiceTest extends ServiceTestSupport {
 	void findOne() {
 		// given
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
-		PostResponse response = postService.create(createPostRequest("제목", memberId));
+		PostResponse response = postService.create(createPostRequest("제목"), memberId);
 
 		// when
 		PostResponse savedPost = postService.findOne(response.getId());
@@ -58,8 +58,8 @@ class PostServiceTest extends ServiceTestSupport {
 		// given
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
 		Long memberId2 = testDataFactory.createMember("ochhs0821");
-		PostResponse response1 = postService.create(createPostRequest("제목1", memberId));
-		PostResponse response2 = postService.create(createPostRequest("제목2", memberId2));
+		PostResponse response1 = postService.create(createPostRequest("제목1"), memberId);
+		PostResponse response2 = postService.create(createPostRequest("제목2"), memberId2);
 
 		// when
 		List<PostResponse> postResponses = postService.findAll();
@@ -76,7 +76,7 @@ class PostServiceTest extends ServiceTestSupport {
 	void findOne_없는_id_예외() {
 		// given
 		Long memberId = testDataFactory.createMember("ohchanhyeok123");
-		postService.create(createPostRequest("제목", memberId));
+		postService.create(createPostRequest("제목"), memberId);
 
 		// when & then
 		assertThatThrownBy(() -> postService.findOne(999L))
@@ -104,24 +104,22 @@ class PostServiceTest extends ServiceTestSupport {
 		Long postId = testDataFactory.createPost(memberId);
 
 		// when
-		commentService.create(createCommentRequest("내용", memberId, postId));
+		commentService.create(createCommentRequest("내용", postId), memberId);
 
 		// then
 		assertThat(postService.findPostById(postId).getViewCount()).isEqualTo(0);
 	}
 
-	private PostCreateRequest createPostRequest(String title, Long memberId) {
+	private PostCreateRequest createPostRequest(String title) {
 		PostCreateRequest request = new PostCreateRequest();
 		request.setTitle(title);
 		request.setContent("내용입니다.");
-		request.setMemberId(memberId);
 		return request;
 	}
 
-	private CommentCreateRequest createCommentRequest(String content, Long memberId, Long postId) {
+	private CommentCreateRequest createCommentRequest(String content, Long postId) {
 		CommentCreateRequest request = new CommentCreateRequest();
 		request.setContent(content);
-		request.setMemberId(memberId);
 		request.setPostId(postId);
 		return request;
 	}

@@ -18,10 +18,11 @@ class CommentApiTest extends ApiTestSupport {
 	void 댓글_저장() {
 		// given
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
-		Long postId = apiTestDataFactory.createPost("hello world", memberId).getId();
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("hello world").getId();
 
 		// when
-		CommentResponse response = createComment("코딩은 재밌다!!", postId, memberId);
+		CommentResponse response = createComment("코딩은 재밌다!!", postId);
 
 		// then
 		assertThat(response.getId()).isNotNull();
@@ -35,8 +36,9 @@ class CommentApiTest extends ApiTestSupport {
 	void 댓글_조회() {
 		// given
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
-		Long postId = apiTestDataFactory.createPost("hello world", memberId).getId();
-		Long commentId = createComment("java spring 마스터하기", postId, memberId).getId();
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("hello world").getId();
+		Long commentId = createComment("java spring 마스터하기", postId).getId();
 
 		// when
 		CommentResponse response = restClient.get()
@@ -55,10 +57,11 @@ class CommentApiTest extends ApiTestSupport {
 	void 댓글_목록() {
 		// given
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
-		Long postId = apiTestDataFactory.createPost("hello world", memberId).getId();
-		createComment("코딩은 재밌다!!", postId, memberId);
-		createComment("코딩은 재밌다2!!", postId, memberId);
-		createComment("코딩은 재밌다3!!", postId, memberId);
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("hello world").getId();
+		createComment("코딩은 재밌다!!", postId);
+		createComment("코딩은 재밌다2!!", postId);
+		createComment("코딩은 재밌다3!!", postId);
 
 		// when
 		List<CommentResponse> responses = restClient.get()
@@ -86,10 +89,9 @@ class CommentApiTest extends ApiTestSupport {
 		}).isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
-	private CommentResponse createComment(String content, Long postId, Long memberId) {
+	private CommentResponse createComment(String content, Long postId) {
 		CommentCreateRequest request = new CommentCreateRequest();
 		request.setPostId(postId);
-		request.setMemberId(memberId);
 		request.setContent(content);
 
 		return restClient.post().uri("/api/comments")
