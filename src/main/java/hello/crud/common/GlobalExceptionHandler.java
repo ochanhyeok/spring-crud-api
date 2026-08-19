@@ -10,7 +10,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import hello.crud.common.dto.ErrorResponse;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -35,6 +37,7 @@ public class GlobalExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleException(Exception e) {
+		log.error("처리하지 못한 예외", e);
 		ErrorResponse error = new ErrorResponse(500, "서버 오류가 발생했습니다");
 		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
 	}
@@ -43,5 +46,11 @@ public class GlobalExceptionHandler {
 	public ResponseEntity<ErrorResponse> handleDuplicateLike(DuplicateLikeException e) {
 		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage());
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+	}
+
+	@ExceptionHandler(LoginFailedException.class)
+	public ResponseEntity<ErrorResponse> handleLoginFailed(LoginFailedException e) {
+		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
 	}
 }
