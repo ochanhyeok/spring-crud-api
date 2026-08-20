@@ -6,6 +6,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import hello.crud.auth.LoginMember;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
+import hello.crud.comment.dto.CommentUpdateRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -39,5 +41,14 @@ public class CommentController {
 	@GetMapping
 	public List<CommentResponse> getComments() {
 		return commentService.findAll();
+	}
+
+	@PutMapping("/{commentId}")
+	public CommentResponse updateComment(
+		@PathVariable Long commentId,
+		@RequestBody @Valid CommentUpdateRequest request,
+		@AuthenticationPrincipal LoginMember loginMember
+	) {
+		return commentService.update(commentId, request, loginMember.id());
 	}
 }

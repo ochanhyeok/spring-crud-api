@@ -6,11 +6,12 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import hello.crud.auth.LoginMember;
+import hello.crud.common.AccessDeniedException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberService;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.post.dto.PostUpdateRequest;
 import lombok.RequiredArgsConstructor;
 
 @Service
@@ -43,6 +44,16 @@ public class PostService {
 	public PostResponse findOne(Long id) {
 		postRepository.increaseViewCount(id);
 		Post post = findPostById(id);
+		return PostResponse.of(post, getAuthorName(post));
+	}
+
+	@Transactional
+	public PostResponse update(Long id, PostUpdateRequest request, Long memberId) {
+		Post post = findPostById(id);
+		if (!post.isWrittenBy(memberId)) {
+			throw new AccessDeniedException("작성자만 수정할 수 있습니다");
+		}
+		post.update(request.getTitle(), request.getContent());
 		return PostResponse.of(post, getAuthorName(post));
 	}
 

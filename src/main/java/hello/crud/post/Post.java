@@ -44,4 +44,13 @@ public class Post {
 		this.member = member;
 	}
 
+	public void update(String title, String content) {
+		this.title = title;
+		this.content = content;
+	}
+
+	public boolean isWrittenBy(Long memberId) {
+		return this.member.getId().equals(memberId);
+	}
+
 }
