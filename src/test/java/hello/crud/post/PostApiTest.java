@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.post.dto.PostUpdateRequest;
 import hello.crud.support.ApiTestSupport;
 
 class PostApiTest extends ApiTestSupport {
@@ -138,6 +139,64 @@ class PostApiTest extends ApiTestSupport {
 
 		// then
 		assertThat(response.getTitle()).isEqualTo("제목");
+	}
+
+	@Test
+	void 본인이_수정한_게시글() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		PostUpdateRequest request = new PostUpdateRequest();
+		request.setTitle("수정된 제목");
+		request.setContent("수정된 내용");
+
+		// when
+		PostResponse response = restClient.put().uri("/api/posts/" + postId)
+			.body(request)
+			.retrieve()
+			.body(PostResponse.class);
+
+		// then
+		assertThat(response.getId()).isEqualTo(postId);
+		assertThat(response.getTitle()).isEqualTo("수정된 제목");
+		assertThat(response.getContent()).isEqualTo("수정된 내용");
+	}
+
+	@Test
+	void 다른회원이_게시글_수정() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		apiTestDataFactory.createMember("another123", "호날두");
+		login("another123");
+
+		PostUpdateRequest request = new PostUpdateRequest();
+		request.setTitle("수정된 제목");
+		request.setContent("수정된 내용");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.put().uri("/api/posts/" + postId)
+			.body(request)
+			.retrieve()
+			.body(PostResponse.class))
+			.isInstanceOf(HttpClientErrorException.Forbidden.class);
+	}
+
+	@Test
+	void 인증없이_게시글수정_401() {
+		// given - login()을 부르지 않는다
+		PostUpdateRequest request = new PostUpdateRequest();
+		request.setTitle("수정된 제목");
+		request.setContent("수정된 내용");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.put().uri("/api/posts/1")
+			.body(request)
+			.retrieve()
+			.body(PostResponse.class))
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
 	}
 
 	private PostResponse createPost(String title) {

@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import hello.crud.comment.CommentService;
 import hello.crud.comment.dto.CommentCreateRequest;
+import hello.crud.common.AccessDeniedException;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
+import hello.crud.post.dto.PostUpdateRequest;
 import hello.crud.support.ServiceTestSupport;
 
 class PostServiceTest extends ServiceTestSupport {
@@ -108,6 +110,22 @@ class PostServiceTest extends ServiceTestSupport {
 
 		// then
 		assertThat(postService.findPostById(postId).getViewCount()).isEqualTo(0);
+	}
+
+	@Test
+	void 다른회원이_게시글수정() {
+		// given
+		Long memberId = testDataFactory.createMember("ohchanhyeok123");
+		Long otherId = testDataFactory.createMember("other123");
+		Long postId = testDataFactory.createPost(memberId);
+
+		PostUpdateRequest request = new PostUpdateRequest();
+		request.setTitle("수정된 제목");
+		request.setContent("수정된 내용");
+
+		// when & then
+		assertThatThrownBy(() -> postService.update(postId, request, otherId))
+			.isInstanceOf(AccessDeniedException.class);
 	}
 
 	private PostCreateRequest createPostRequest(String title) {

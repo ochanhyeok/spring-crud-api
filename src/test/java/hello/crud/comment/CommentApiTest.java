@@ -10,6 +10,7 @@ import org.springframework.web.client.HttpClientErrorException;
 
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
+import hello.crud.comment.dto.CommentUpdateRequest;
 import hello.crud.support.ApiTestSupport;
 
 class CommentApiTest extends ApiTestSupport {
@@ -87,6 +88,64 @@ class CommentApiTest extends ApiTestSupport {
 				.retrieve()
 				.body(CommentResponse.class);
 		}).isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 본인이_수정한_댓글() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글 내용").getId();
+
+		CommentUpdateRequest request = new CommentUpdateRequest();
+		request.setContent("수정된 댓글");
+
+		// when
+		CommentResponse response = restClient.put().uri("/api/comments/" + commentId)
+			.body(request)
+			.retrieve()
+			.body(CommentResponse.class);
+
+		// then
+		assertThat(response.getId()).isEqualTo(commentId);
+		assertThat(response.getContent()).isEqualTo("수정된 댓글");
+	}
+
+	@Test
+	void 다른회원이_댓글_수정() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글").getId();
+
+		apiTestDataFactory.createMember("another123", "호날두");
+		login("another123");
+
+		CommentUpdateRequest request = new CommentUpdateRequest();
+		request.setContent("수정된 댓글");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.put().uri("/api/comments/" + commentId)
+			.body(request)
+			.retrieve()
+			.body(CommentResponse.class))
+			.isInstanceOf(HttpClientErrorException.Forbidden.class);
+	}
+
+	@Test
+	void 인증없이_댓글수정_401() {
+		// given - login()을 부르지 않는다
+		CommentUpdateRequest request = new CommentUpdateRequest();
+		request.setContent("수정된 댓글");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.put().uri("/api/comments/1")
+			.body(request)
+			.retrieve()
+			.body(CommentResponse.class))
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
 	}
 
 	private CommentResponse createComment(String content, Long postId) {

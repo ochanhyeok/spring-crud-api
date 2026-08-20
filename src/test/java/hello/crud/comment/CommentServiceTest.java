@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
+import hello.crud.comment.dto.CommentUpdateRequest;
+import hello.crud.common.AccessDeniedException;
 import hello.crud.support.ServiceTestSupport;
 
 class CommentServiceTest extends ServiceTestSupport {
@@ -84,6 +86,22 @@ class CommentServiceTest extends ServiceTestSupport {
 		// when & then
 		assertThatThrownBy(() -> commentService.findOne(99L))
 			.isInstanceOf(NoSuchElementException.class);
+	}
+
+	@Test
+	void 다른회원이_댓글수정() {
+		// given
+		Long memberId = testDataFactory.createMember("ochanhyeok123");
+		Long otherId = testDataFactory.createMember("other123");
+		Long postId = testDataFactory.createPost(memberId);
+		Long commentId = testDataFactory.createComment(postId, memberId);
+
+		CommentUpdateRequest request = new CommentUpdateRequest();
+		request.setContent("수정된 댓글 내용");
+
+		// when & then
+		assertThatThrownBy(() -> commentService.update(commentId, request, otherId))
+			.isInstanceOf(AccessDeniedException.class);
 	}
 
 	private CommentCreateRequest createCommentRequest(String content, Long postId) {
