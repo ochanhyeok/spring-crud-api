@@ -10,6 +10,7 @@
 > - [게시판 좋아요 설계: 별도 테이블과 COUNT 조회](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%ED%8C%90%EC%97%90-%EC%A2%8B%EC%95%84%EC%9A%94-%EA%B8%B0%EB%8A%A5-%EC%84%A4%EA%B3%84%ED%95%B4%EB%B3%B4%EA%B8%B0)
 > - [테스트 공통 코드 추출과 그 비용: DRY보다 DAMP](https://velog.io/@ochhs0829/%EC%A4%91%EB%B3%B5-%EC%A0%9C%EA%B1%B0-%EA%B8%B0%EC%A4%80%EA%B3%BC-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EA%B3%B5%ED%86%B5-%EC%BD%94%EB%93%9C-%EC%A0%95%EB%A6%AC)
 > - [게시글 조회수 붙이기: 원자적 UPDATE와 readOnly 트랜잭션](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%EA%B8%80-%EC%A1%B0%ED%9A%8C%EC%88%98-%EB%B6%99%EC%9D%B4%EA%B8%B0-%EC%9B%90%EC%9E%90%EC%A0%81-UPDATE%EC%99%80-readOnly-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98)
+> - [게시판에 로그인 붙이기: JWT 대신 세션을 고른 이유](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%ED%8C%90%EC%97%90-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%B6%99%EC%9D%B4%EA%B8%B0-JWT-%EB%8C%80%EC%8B%A0-%EC%84%B8%EC%85%98%EC%9D%84-%EA%B3%A0%EB%A5%B8-%EC%9D%B4%EC%9C%A0)
 
 ## 기술 스택
 
@@ -78,8 +79,10 @@ erDiagram
 | `POST` | `/api/auth/logout` | 로그아웃 | 필요 |
 | `GET` | `/api/auth/me` | 내 정보 | 필요 |
 | `POST` | `/api/posts` | 게시글 생성 | 필요 |
+| `PUT` | `/api/posts/{postId}` | 게시글 수정 (작성자만) | 필요 |
 | `GET` | `/api/posts` `/{id}` | 게시글 목록 / 단건 | |
 | `POST` | `/api/comments` | 댓글 생성 | 필요 |
+| `PUT` | `/api/comments/{commentId}` | 댓글 수정 (작성자만) | 필요 |
 | `GET` | `/api/comments` `/{id}` | 댓글 목록 / 단건 | |
 | `POST` | `/api/posts/{postId}/likes` | 게시글 좋아요 | 필요 |
 | `DELETE` | `/api/posts/{postId}/likes` | 게시글 좋아요 취소 | 필요 |
@@ -90,6 +93,7 @@ erDiagram
 
 > 읽기(`GET`)는 인증 없이 열려 있고, 쓰기는 로그인이 필요합니다. 회원 가입과 로그인만 예외입니다.
 > 인증이 필요한 요청에 세션이 없으면 `401`과 `{"status":401,"message":"로그인이 필요합니다"}`가 나갑니다.
+> 작성자가 아닌 회원이 수정을 시도하면 `403`이 나갑니다. 인증 실패(401)는 필터에서, 인가 실패(403)는 서비스에서 판단합니다.
 > 게시글·댓글 응답에는 작성자 이름(`authorName`)이 포함됩니다.
 > 좋아요 응답에는 갱신된 개수(`likeCount`)와 눌렀는지 여부(`liked`)가 포함됩니다.
 
@@ -101,6 +105,7 @@ erDiagram
 - **전역 예외 처리** — `@RestControllerAdvice`로 404/400/409 등 일관된 에러 응답. 하부 기술 예외(`DataIntegrityViolationException`)는 서비스에서 도메인 예외로 변환
 - **입력 검증** — `@Valid` + Bean Validation
 - **계층 책임 분리** — 내부용 도메인 반환 / API용 DTO 반환 구분
+- **인가는 서비스에서 확인한다** — 수정·삭제는 대상을 조회해야만 할 수 있고, 그 결과에 이미 작성자가 들어 있습니다. `post.isWrittenBy(memberId)`로 비교합니다. 연관관계를 두 단계 타고 들어가는 코드(`post.getMember().getId()`)를 서비스에 흩지 않으려고 판단 메서드는 엔티티에 뒀습니다
 - **서비스는 인증을 모른다** — 컨트롤러가 세션에서 회원 id를 꺼내 서비스에 넘깁니다. 서비스 시그니처는 `create(request, memberId)` 형태라 서비스 테스트에 인증 설정이 들어가지 않습니다
 - **세션에는 최소 정보만** — 엔티티가 아니라 `LoginMember(Long id)` record를 담습니다. 엔티티를 담으면 준영속 상태로 남고, 비밀번호 해시까지 세션에 저장됩니다
 - **로그인 시 세션 id 재발급** — `changeSessionId()`로 세션 고정 공격을 막습니다. Security의 기본 방어는 자체 인증 필터를 거칠 때만 동작해서, 직접 인증하는 구조에서는 별도로 처리해야 합니다
@@ -142,12 +147,13 @@ erDiagram
 | 2026-08-16 | 중복 코드 리팩토링 점검 · 테스트 공통 코드 추출 |
 | 2026-08-18 | 게시글 조회수 (원자적 UPDATE · 읽기 전용 트랜잭션 분리) |
 | 2026-08-19 | 인증 (Spring Security · BCrypt · 세션 로그인 · 경로별 접근 제어) |
+| 2026-08-20 | 인가 (게시글 · 댓글 수정, 작성자 본인 확인 → 403) |
 
 **진행 예정**
 
-실무에서 쓰는 게시판 구조를 모놀리식으로 만들면서, 트래픽이 커질 때 깨지는 지점을 측정하고 해결하는 순서입니다.
+실무에서 쓰는 게시판 구조를 모놀리식으로 만들면서, 요청이 늘었을 때 쿼리 수 · 응답 시간 · 동시 쓰기에서 생기는 문제를 측정하고 해결하는 순서입니다.
 
-- [ ] **인가** — 게시글 · 댓글 수정/삭제와 본인 확인, 소프트 삭제
+- [ ] **소프트 삭제** — 게시글 · 댓글은 `deleted_at`으로, 좋아요는 물리 삭제 유지. 삭제된 글의 댓글 · 좋아요 처리
 - [ ] **세션 저장소 분리** — 앱 2대로 세션 깨짐 재현 → Redis 세션 저장소
 - [ ] **게시판 도입 · 페이징 · 인덱스** — `board_id` · 작성일시 추가, 복합 인덱스 `(board_id, id desc)`, 커버링 인덱스 서브쿼리 조인, count 상한 쿼리, 키셋 무한 스크롤
 - [ ] **계층형 댓글** — 자기 참조 2단계 → materialized path, 자식 유무에 따른 삭제 처리, 댓글 페이징
