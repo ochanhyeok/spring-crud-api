@@ -25,6 +25,7 @@
 | Build | Gradle |
 
 > MyBatis로 구현했던 버전은 [`mybatis` 브랜치](../../tree/mybatis)에 있습니다.
+> 게시글–댓글을 `@OneToMany` 컬렉션으로 매핑했던 버전은 [`n-plus-1` 브랜치](../../tree/n-plus-1)에 있습니다. 2편·3편의 컬렉션 N+1과 `@BatchSize` 실측이 그 코드 기준입니다.
 
 ## 아키텍처
 
@@ -64,6 +65,7 @@ erDiagram
 ```
 
 - `Member` (1) ─ (N) `Post` ─ (N) `Comment`
+- 댓글은 게시글을 `@ManyToOne`이 아니라 `Long postId`로 참조합니다. 댓글 서비스가 게시글 도메인을 몰라도 되고, 도메인 간 순환 의존이 생기지 않습니다
 - 좋아요는 대상별로 테이블을 분리(`post_like` / `comment_like`)하고, 각각 단방향 `@ManyToOne` 두 개로 매핑
 - `UNIQUE(post_id, member_id)` · `UNIQUE(comment_id, member_id)`로 중복 좋아요 방지
 - `@ManyToOne`으로 객체 참조 매핑 (지연로딩)
@@ -80,9 +82,11 @@ erDiagram
 | `GET` | `/api/auth/me` | 내 정보 | 필요 |
 | `POST` | `/api/posts` | 게시글 생성 | 필요 |
 | `PUT` | `/api/posts/{postId}` | 게시글 수정 (작성자만) | 필요 |
+| `DELETE` | `/api/posts/{postId}` | 게시글 삭제 (작성자만) | 필요 |
 | `GET` | `/api/posts` `/{id}` | 게시글 목록 / 단건 | |
 | `POST` | `/api/comments` | 댓글 생성 | 필요 |
 | `PUT` | `/api/comments/{commentId}` | 댓글 수정 (작성자만) | 필요 |
+| `DELETE` | `/api/comments/{commentId}` | 댓글 삭제 (작성자만) | 필요 |
 | `GET` | `/api/comments` `/{id}` | 댓글 목록 / 단건 | |
 | `POST` | `/api/posts/{postId}/likes` | 게시글 좋아요 | 필요 |
 | `DELETE` | `/api/posts/{postId}/likes` | 게시글 좋아요 취소 | 필요 |
@@ -94,6 +98,7 @@ erDiagram
 > 읽기(`GET`)는 인증 없이 열려 있고, 쓰기는 로그인이 필요합니다. 회원 가입과 로그인만 예외입니다.
 > 인증이 필요한 요청에 세션이 없으면 `401`과 `{"status":401,"message":"로그인이 필요합니다"}`가 나갑니다.
 > 작성자가 아닌 회원이 수정을 시도하면 `403`이 나갑니다. 인증 실패(401)는 필터에서, 인가 실패(403)는 서비스에서 판단합니다.
+> 게시글·댓글 삭제는 소프트 삭제입니다. `deleted_at`을 채우고 조회에서 제외하므로 삭제된 리소스는 `404`가 나갑니다. 게시글을 삭제하면 그 글의 댓글도 함께 제외됩니다.
 > 게시글·댓글 응답에는 작성자 이름(`authorName`)이 포함됩니다.
 > 좋아요 응답에는 갱신된 개수(`likeCount`)와 눌렀는지 여부(`liked`)가 포함됩니다.
 
@@ -105,6 +110,8 @@ erDiagram
 - **전역 예외 처리** — `@RestControllerAdvice`로 404/400/409 등 일관된 에러 응답. 하부 기술 예외(`DataIntegrityViolationException`)는 서비스에서 도메인 예외로 변환
 - **입력 검증** — `@Valid` + Bean Validation
 - **계층 책임 분리** — 내부용 도메인 반환 / API용 DTO 반환 구분
+- **소프트 삭제는 `deleted_at`으로** — `boolean`이 아니라 시각을 남겨야 보관 기간 계산과 배치 정리가 됩니다. 사용자 콘텐츠(게시글·댓글)만 소프트 삭제하고 좋아요는 물리 삭제를 유지합니다. 좋아요를 소프트 삭제하면 `UNIQUE(post_id, member_id)` 때문에 취소 후 다시 누를 수 없습니다
+- **변경 감지와 벌크 연산을 한 트랜잭션에서 쓸 때** — 게시글은 엔티티 변경 감지로, 그 글의 댓글은 벌크 `UPDATE` 한 번으로 지웁니다. 벌크는 영속성 컨텍스트를 거치지 않으므로 `@Modifying(flushAutomatically = true, clearAutomatically = true)`로 앞뒤를 맞춰야 변경 감지분이 유실되지 않습니다
 - **인가는 서비스에서 확인한다** — 수정·삭제는 대상을 조회해야만 할 수 있고, 그 결과에 이미 작성자가 들어 있습니다. `post.isWrittenBy(memberId)`로 비교합니다. 연관관계를 두 단계 타고 들어가는 코드(`post.getMember().getId()`)를 서비스에 흩지 않으려고 판단 메서드는 엔티티에 뒀습니다
 - **서비스는 인증을 모른다** — 컨트롤러가 세션에서 회원 id를 꺼내 서비스에 넘깁니다. 서비스 시그니처는 `create(request, memberId)` 형태라 서비스 테스트에 인증 설정이 들어가지 않습니다
 - **세션에는 최소 정보만** — 엔티티가 아니라 `LoginMember(Long id)` record를 담습니다. 엔티티를 담으면 준영속 상태로 남고, 비밀번호 해시까지 세션에 저장됩니다
@@ -148,12 +155,12 @@ erDiagram
 | 2026-08-18 | 게시글 조회수 (원자적 UPDATE · 읽기 전용 트랜잭션 분리) |
 | 2026-08-19 | 인증 (Spring Security · BCrypt · 세션 로그인 · 경로별 접근 제어) |
 | 2026-08-20 | 인가 (게시글 · 댓글 수정, 작성자 본인 확인 → 403) |
+| 2026-08-23 | 소프트 삭제 (`deleted_at` · 게시글 삭제 시 댓글 연쇄 · 조회 제외) |
 
 **진행 예정**
 
 실무에서 쓰는 게시판 구조를 모놀리식으로 만들면서, 요청이 늘었을 때 쿼리 수 · 응답 시간 · 동시 쓰기에서 생기는 문제를 측정하고 해결하는 순서입니다.
 
-- [ ] **소프트 삭제** — 게시글 · 댓글은 `deleted_at`으로, 좋아요는 물리 삭제 유지. 삭제된 글의 댓글 · 좋아요 처리
 - [ ] **세션 저장소 분리** — 앱 2대로 세션 깨짐 재현 → Redis 세션 저장소
 - [ ] **게시판 도입 · 페이징 · 인덱스** — `board_id` · 작성일시 추가, 복합 인덱스 `(board_id, id desc)`, 커버링 인덱스 서브쿼리 조인, count 상한 쿼리, 키셋 무한 스크롤
 - [ ] **계층형 댓글** — 자기 참조 2단계 → materialized path, 자식 유무에 따른 삭제 처리, 댓글 페이징
