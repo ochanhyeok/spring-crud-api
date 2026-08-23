@@ -6,6 +6,7 @@ import java.util.NoSuchElementException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.comment.CommentService;
 import hello.crud.common.AccessDeniedException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberService;
@@ -21,6 +22,7 @@ public class PostService {
 
 	private final PostRepository postRepository;
 	private final MemberService memberService;
+	private final CommentService commentService;
 
 	@Transactional
 	public PostResponse create(PostCreateRequest request, Long memberId) {
@@ -35,7 +37,7 @@ public class PostService {
 	}
 
 	public List<PostResponse> findAll() {
-		return postRepository.findAllBy().stream()
+		return postRepository.findAllByDeletedAtIsNull().stream()
 			.map(post -> PostResponse.of(post, getAuthorName(post)))
 			.toList();
 	}
@@ -57,8 +59,18 @@ public class PostService {
 		return PostResponse.of(post, getAuthorName(post));
 	}
 
+	@Transactional
+	public void delete(Long postId, Long memberId) {
+		Post post = findPostById(postId);
+		if (!post.isWrittenBy(memberId)) {
+			throw new AccessDeniedException("작성자만 삭제할 수 있습니다.");
+		}
+		post.delete();
+		commentService.deleteByPostId(postId);
+	}
+
 	public Post findPostById(Long id) {
-		return postRepository.findById(id)
+		return postRepository.findByIdAndDeletedAtIsNull(id)
 			.orElseThrow(() -> new NoSuchElementException("게시글이 없습니다. id=" + id));
 	}
 

@@ -3,6 +3,7 @@ package hello.crud.comment;
 import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,5 +51,13 @@ public class CommentController {
 		@AuthenticationPrincipal LoginMember loginMember
 	) {
 		return commentService.update(commentId, request, loginMember.id());
+	}
+
+	@DeleteMapping("/{commentId}")
+	public void deleteComment(
+		@PathVariable Long commentId,
+		@AuthenticationPrincipal LoginMember loginMember
+	) {
+		commentService.delete(commentId, loginMember.id());
 	}
 }

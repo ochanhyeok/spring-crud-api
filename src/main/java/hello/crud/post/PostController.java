@@ -3,6 +3,7 @@ package hello.crud.post;
 import java.util.List;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,5 +51,13 @@ public class PostController {
 		@AuthenticationPrincipal LoginMember loginMember
 	) {
 		return postService.update(postId, request, loginMember.id());
+	}
+
+	@DeleteMapping("/{postId}")
+	public void deletePost(
+		@PathVariable Long postId,
+		@AuthenticationPrincipal LoginMember loginMember
+	) {
+		postService.delete(postId, loginMember.id());
 	}
 }
