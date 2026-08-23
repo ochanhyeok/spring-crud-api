@@ -1,7 +1,8 @@
 package hello.crud.comment;
 
+import java.time.LocalDateTime;
+
 import hello.crud.member.Member;
-import hello.crud.post.Post;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,18 +24,18 @@ public class Comment {
 	private Long id;
 	private String content;
 
-	@ManyToOne(fetch = FetchType.LAZY)
-	@JoinColumn(name = "post_id")
-	private Post post;
+	private Long postId;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
 
+	private LocalDateTime deletedAt;
+
 	@Builder
-	public Comment(String content, Post post, Member member) {
+	public Comment(String content, Long postId, Member member) {
 		this.content = content;
-		this.post = post;
+		this.postId = postId;
 		this.member = member;
 	}
 
@@ -44,5 +45,13 @@ public class Comment {
 
 	public boolean isWrittenBy(Long memberId) {
 		return this.member.getId().equals(memberId);
+	}
+
+	public void delete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+
+	public boolean isDeleted() {
+		return this.deletedAt != null;
 	}
 }

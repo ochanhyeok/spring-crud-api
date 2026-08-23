@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
 import hello.crud.post.dto.PostCreateRequest;
@@ -197,6 +198,91 @@ class PostApiTest extends ApiTestSupport {
 			.retrieve()
 			.body(PostResponse.class))
 			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+	}
+
+	@Test
+	void 본인이_게시글_삭제() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+
+		// when
+		ResponseEntity<Void> response = restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// then
+		assertThat(response.getStatusCode().value()).isEqualTo(200);
+	}
+
+	@Test
+	void 다른회원이_게시글_삭제() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		apiTestDataFactory.createMember("other123", "호날두");
+		login("other123");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.Forbidden.class);
+	}
+
+	@Test
+	void 인증없이_게시글삭제_401() {
+		// given - login()을 부르지 않는다
+
+		// when & then
+		assertThatThrownBy(() -> restClient.delete().uri("/api/posts/1")
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+	}
+
+	@Test
+	void 삭제된_게시글_조회_404() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+
+		restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// when & then
+		assertThatThrownBy(() -> restClient.get().uri("/api/posts/" + postId)
+			.retrieve()
+			.body(PostResponse.class))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 삭제된_게시글은_목록에서_제외() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long postId2 = apiTestDataFactory.createPost("제목2").getId();
+
+		restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// when
+		List<PostResponse> responses = restClient.get().uri("/api/posts")
+			.retrieve()
+			.body(new ParameterizedTypeReference<List<PostResponse>>() {
+			});
+
+		// then
+		assertThat(responses.size()).isEqualTo(1);
+		assertThat(responses.get(0).getId()).isEqualTo(postId2);
+		assertThat(responses.get(0).getTitle()).isEqualTo("제목2");
 	}
 
 	private PostResponse createPost(String title) {

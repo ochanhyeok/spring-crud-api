@@ -1,9 +1,7 @@
 package hello.crud.post;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
-import hello.crud.comment.Comment;
 import hello.crud.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -12,7 +10,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -29,13 +26,11 @@ public class Post {
 	private String title;
 	private String content;
 	private long viewCount = 0L;
+	private LocalDateTime deletedAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
 	@JoinColumn(name = "member_id")
 	private Member member;
-
-	@OneToMany(mappedBy = "post")
-	private List<Comment> comments = new ArrayList<>();
 
 	@Builder
 	public Post(String title, String content, Member member) {
@@ -51,6 +46,14 @@ public class Post {
 
 	public boolean isWrittenBy(Long memberId) {
 		return this.member.getId().equals(memberId);
+	}
+
+	public void delete() {
+		this.deletedAt = LocalDateTime.now();
+	}
+
+	public boolean isDeleted() {
+		return this.deletedAt != null;
 	}
 
 }
