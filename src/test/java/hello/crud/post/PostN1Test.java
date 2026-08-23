@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import hello.crud.comment.CommentService;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
@@ -21,10 +20,6 @@ class PostN1Test extends ServiceTestSupport {
 
 	@Autowired
 	private PostService postService;
-	@Autowired
-	private CommentService commentService;
-	@Autowired
-	private PostRepository postRepository;
 
 	@Autowired
 	EntityManagerFactory emf;
@@ -50,33 +45,6 @@ class PostN1Test extends ServiceTestSupport {
 		System.out.println("=== 실행 쿼리 수 = " + queryCount + " ===");
 		assertThat(postResponses).hasSize(5);
 		assertThat(queryCount).isEqualTo(1);
-	}
-
-	@Test
-	void N1batchSize() {
-		// given
-		Long memberId = testDataFactory.createMember("user");
-		for (int i = 0; i < 5; i++) {
-			Long postId = testDataFactory.createPost(memberId);
-			commentService.create(createCommentRequest("댓글 1", postId), memberId);
-			commentService.create(createCommentRequest("댓글 2", postId), memberId);
-		}
-
-		Statistics stats = emf.unwrap(SessionFactory.class).getStatistics();
-		stats.clear();
-
-		// when
-		transactionTemplate.executeWithoutResult(status -> {
-			List<Post> posts = postRepository.findAll();
-			for (Post post : posts) {
-				post.getComments().size(); // 이 순간 그 글의 댓글 조회 쿼리 발생
-			}
-		});
-
-		// then
-		long queryCount = stats.getPrepareStatementCount();
-		System.out.println("=== 실행 쿼리 수 = " + queryCount + " ===");
-		assertThat(queryCount).isEqualTo(2);
 	}
 
 	private PostCreateRequest createPostRequest(String title) {

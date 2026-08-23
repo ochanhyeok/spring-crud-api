@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
 import hello.crud.comment.dto.CommentCreateRequest;
@@ -146,6 +147,91 @@ class CommentApiTest extends ApiTestSupport {
 			.retrieve()
 			.body(CommentResponse.class))
 			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+	}
+
+	@Test
+	void 본인이_댓글_삭제() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글내용").getId();
+
+		// when
+		ResponseEntity<Void> response = restClient.delete().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// then
+		assertThat(response.getStatusCode().value()).isEqualTo(200);
+	}
+
+	@Test
+	void 다른회원이_댓글_삭제() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글내용").getId();
+
+		apiTestDataFactory.createMember("other123", "호날두");
+		login("other123");
+
+		// when & then
+		assertThatThrownBy(() -> restClient.delete().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.Forbidden.class);
+	}
+
+	@Test
+	void 인증없이_댓글삭제_401() {
+		// given - login 없음
+
+		// when & then
+		assertThatThrownBy(() -> restClient.delete().uri("/api/comments/1")
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+	}
+
+	@Test
+	void 삭제된_댓글_조회_404() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글내용").getId();
+
+		restClient.delete().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// when & then
+		assertThatThrownBy(() -> restClient.get().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 게시글_삭제하면_댓글도_조회_안됨() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글내용").getId();
+
+		// when - 게시글만 삭제
+		restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// then - 댓글도 조회되지 않는다
+		assertThatThrownBy(() -> restClient.get().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity())
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
 	private CommentResponse createComment(String content, Long postId) {
