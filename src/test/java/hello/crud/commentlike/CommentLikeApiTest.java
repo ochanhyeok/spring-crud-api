@@ -86,6 +86,34 @@ class CommentLikeApiTest extends ApiTestSupport {
 			.isInstanceOf(HttpClientErrorException.Conflict.class);
 	}
 
+	@Test
+	void 삭제된_댓글에는_좋아요를_누를_수_없다() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "댓글내용").getId();
+
+		restClient.delete().uri("/api/comments/" + commentId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// when & then
+		assertThatThrownBy(() -> createCommentLike(commentId))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 없는_댓글에_좋아요() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+
+		// when & then
+		assertThatThrownBy(() -> createCommentLike(999L))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
 	private CommentLikeResponse createCommentLike(Long commentId) {
 		return restClient.post().uri("/api/comments/" + commentId + "/likes")
 			.retrieve()

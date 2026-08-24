@@ -83,6 +83,33 @@ class PostLikeApiTest extends ApiTestSupport {
 		}).isInstanceOf(HttpClientErrorException.Conflict.class);
 	}
 
+	@Test
+	void 삭제된_게시글에는_좋아요를_누를_수_없다() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
+
+		restClient.delete().uri("/api/posts/" + postId)
+			.retrieve()
+			.toBodilessEntity();
+
+		// when & then
+		assertThatThrownBy(() -> createPostLike(postId))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
+	@Test
+	void 없는_게시글에_좋아요() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+
+		// when & then
+		assertThatThrownBy(() -> createPostLike(999L))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
+	}
+
 	private PostLikeResponse createPostLike(Long postId) {
 		return restClient.post().uri("/api/posts/" + postId + "/likes")
 			.retrieve()

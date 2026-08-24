@@ -9,7 +9,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 
-import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
 import hello.crud.comment.dto.CommentUpdateRequest;
 import hello.crud.support.ApiTestSupport;
@@ -24,7 +23,7 @@ class CommentApiTest extends ApiTestSupport {
 		Long postId = apiTestDataFactory.createPost("hello world").getId();
 
 		// when
-		CommentResponse response = createComment("코딩은 재밌다!!", postId);
+		CommentResponse response = apiTestDataFactory.createComment(postId, "코딩은 재밌다!!");
 
 		// then
 		assertThat(response.getId()).isNotNull();
@@ -40,7 +39,7 @@ class CommentApiTest extends ApiTestSupport {
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 		login("ohchanhyeok123");
 		Long postId = apiTestDataFactory.createPost("hello world").getId();
-		Long commentId = createComment("java spring 마스터하기", postId).getId();
+		Long commentId = apiTestDataFactory.createComment(postId, "java spring 마스터하기").getId();
 
 		// when
 		CommentResponse response = restClient.get()
@@ -61,9 +60,9 @@ class CommentApiTest extends ApiTestSupport {
 		Long memberId = apiTestDataFactory.createMember("ohchanhyeok123", "오찬혁").getId();
 		login("ohchanhyeok123");
 		Long postId = apiTestDataFactory.createPost("hello world").getId();
-		createComment("코딩은 재밌다!!", postId);
-		createComment("코딩은 재밌다2!!", postId);
-		createComment("코딩은 재밌다3!!", postId);
+		apiTestDataFactory.createComment(postId, "코딩은 재밌다!!");
+		apiTestDataFactory.createComment(postId, "코딩은 재밌다2!!");
+		apiTestDataFactory.createComment(postId, "코딩은 재밌다3!!");
 
 		// when
 		List<CommentResponse> responses = restClient.get()
@@ -234,15 +233,20 @@ class CommentApiTest extends ApiTestSupport {
 			.isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
-	private CommentResponse createComment(String content, Long postId) {
-		CommentCreateRequest request = new CommentCreateRequest();
-		request.setPostId(postId);
-		request.setContent(content);
+	@Test
+	void 삭제된_게시글에는_댓글을_달_수_없다() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+		login("ohchanhyeok123");
+		Long postId = apiTestDataFactory.createPost("제목").getId();
 
-		return restClient.post().uri("/api/comments")
-			.body(request)
+		restClient.delete().uri("/api/posts/" + postId)
 			.retrieve()
-			.body(CommentResponse.class);
+			.toBodilessEntity();
+
+		// when & then
+		assertThatThrownBy(() -> apiTestDataFactory.createComment(postId, "댓글내용"))
+			.isInstanceOf(HttpClientErrorException.NotFound.class);
 	}
 
 }
