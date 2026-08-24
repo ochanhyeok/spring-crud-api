@@ -1,5 +1,7 @@
 package hello.crud.postlike;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class PostLikeService {
 
 	@Transactional
 	public PostLikeResponse like(Long postId, Long memberId) {
+		if (!postRepository.existsByIdAndDeletedAtIsNull(postId)) {
+			throw new NoSuchElementException("게시글이 없습니다. id=" + postId);
+		}
 		if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId)) {
 			throw new DuplicateLikeException("이미 좋아요를 누른 게시글입니다.");
 		}

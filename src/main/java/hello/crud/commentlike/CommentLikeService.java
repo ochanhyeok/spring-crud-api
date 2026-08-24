@@ -1,5 +1,7 @@
 package hello.crud.commentlike;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +25,9 @@ public class CommentLikeService {
 
 	@Transactional
 	public CommentLikeResponse like(Long commentId, Long memberId) {
+		if (!commentRepository.existsByIdAndDeletedAtIsNull(commentId)) {
+			throw new NoSuchElementException("댓글이 없습니다. id=" + commentId);
+		}
 		if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
 			throw new DuplicateLikeException("이미 좋아요를 누른 댓글입니다.");
 		}

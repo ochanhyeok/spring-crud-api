@@ -19,4 +19,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	List<Post> findAllByDeletedAtIsNull();
 
 	Optional<Post> findByIdAndDeletedAtIsNull(Long id);
+
+	boolean existsByIdAndDeletedAtIsNull(Long id);
 }

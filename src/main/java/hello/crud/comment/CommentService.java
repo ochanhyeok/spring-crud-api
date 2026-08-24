@@ -28,7 +28,7 @@ public class CommentService {
 	@Transactional
 	public CommentResponse create(CommentCreateRequest request, Long memberId) {
 		Member member = memberService.findMemberById(memberId);
-		if (!postRepository.existsById(request.getPostId())) {
+		if (!postRepository.existsByIdAndDeletedAtIsNull(request.getPostId())) {
 			throw new NoSuchElementException("게시글이 없습니다. id=" + request.getPostId());
 		}
 		Comment comment = Comment.builder()
