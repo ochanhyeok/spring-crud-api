@@ -47,6 +47,7 @@ flowchart LR
 | Repository | 데이터 접근 (`JpaRepository`) |
 | AuthenticationEntryPoint | 인증 실패(필터 단계) → 401 JSON |
 | GlobalExceptionHandler | 전역 예외(컨트롤러 단계) → 일관된 에러 응답 |
+| ErrorCode | 상태 코드 · 응답 코드 · 메시지를 모아둔 enum |
 
 > 인증 실패는 `DispatcherServlet`보다 앞인 필터에서 발생해 `@RestControllerAdvice`를 거치지 않습니다. 그래서 401만 별도 핸들러로 응답 형식을 맞춥니다.
 
@@ -97,7 +98,7 @@ erDiagram
 | `GET` | `/api/comments/{commentId}/likes/count` | 댓글 좋아요 수 | |
 
 > 읽기(`GET`)는 인증 없이 열려 있고, 쓰기는 로그인이 필요합니다. 회원 가입과 로그인만 예외입니다.
-> 인증이 필요한 요청에 세션이 없으면 `401`과 `{"status":401,"message":"로그인이 필요합니다"}`가 나갑니다.
+> 인증이 필요한 요청에 세션이 없으면 `401`과 `{"code":"UNAUTHENTICATED","status":401,"message":"로그인이 필요합니다."}`가 나갑니다.
 > 작성자가 아닌 회원이 수정을 시도하면 `403`이 나갑니다. 인증 실패(401)는 필터에서, 인가 실패(403)는 서비스에서 판단합니다.
 > 게시글·댓글 삭제는 소프트 삭제입니다. `deleted_at`을 채우고 조회에서 제외하므로 삭제된 리소스는 `404`가 나갑니다. 게시글을 삭제하면 그 글의 댓글도 함께 제외됩니다.
 > 게시글·댓글 응답에는 작성자 이름(`authorName`)이 포함됩니다.
@@ -109,6 +110,8 @@ erDiagram
 - **Repository 인터페이스화** — 구현체 교체로 DB 기술 전환 (메모리 → MyBatis → JPA)
 - **도메인 불변성** — `@Setter` 대신 생성자·의미 있는 메서드 사용
 - **전역 예외 처리** — `@RestControllerAdvice`로 404/400/409 등 일관된 에러 응답. 하부 기술 예외(`DataIntegrityViolationException`)는 서비스에서 도메인 예외로 변환
+- **에러 코드 일원화** — 상태 코드와 메시지를 `ErrorCode` enum 한 곳에 둡니다. 이전에는 상태 코드가 `ErrorResponse` 생성자와 `ResponseEntity.status()` 두 곳에 적혀 있어 실제로 어긋난 적이 있고(바디 422 / 헤더 401), 같은 메시지가 15곳에 흩어져 마침표까지 달랐습니다. 응답에 `code`를 담아 클라이언트가 한글 메시지를 파싱하지 않고 분기할 수 있게 했습니다
+- **예외 타입은 유지** — `ErrorCode`만 주입하고 `NotFoundException`·`AccessDeniedException` 같은 타입은 남겼습니다. `BusinessException` 하나로 합치면 핸들러는 줄지만 서비스 테스트가 무엇이 잘못됐는지 구분하지 못합니다
 - **입력 검증** — `@Valid` + Bean Validation
 - **계층 책임 분리** — 내부용 도메인 반환 / API용 DTO 반환 구분
 - **소프트 삭제는 `deleted_at`으로** — `boolean`이 아니라 시각을 남겨야 보관 기간 계산과 배치 정리가 됩니다. 사용자 콘텐츠(게시글·댓글)만 소프트 삭제하고 좋아요는 물리 삭제를 유지합니다. 좋아요를 소프트 삭제하면 `UNIQUE(post_id, member_id)` 때문에 취소 후 다시 누를 수 없습니다
@@ -158,12 +161,12 @@ erDiagram
 | 2026-08-20 | 인가 (게시글 · 댓글 수정, 작성자 본인 확인 → 403) |
 | 2026-08-23 | 소프트 삭제 (`deleted_at` · 게시글 삭제 시 댓글 연쇄 · 조회 제외) |
 | 2026-08-26 | 삭제 여부를 확인하지 않던 세 곳 보완 (댓글 작성 · 좋아요 두 곳) |
+| 2026-08-28 | 에러 응답 구조 정리 (`ErrorCode` enum · 응답에 `code` 추가 · 401 세분화) |
 
 **진행 예정**
 
 실무에서 쓰는 게시판 구조를 모놀리식으로 만들면서, 요청이 늘었을 때 쿼리 수 · 응답 시간 · 동시 쓰기에서 생기는 문제를 측정하고 해결하는 순서입니다.
 
-- [ ] **예외 응답 구조 정리** — 상태 코드가 `ErrorResponse`와 `ResponseEntity` 두 곳에 흩어져 있는 것을 `ErrorCode`로 모음
 - [ ] **게시판 도입 · 페이징 · 인덱스** — `board_id` · 작성일시 추가, 복합 인덱스 `(board_id, id desc)`, 커버링 인덱스 서브쿼리 조인, count 상한 쿼리, 키셋 무한 스크롤
 - [ ] **계층형 댓글** — 자기 참조 2단계 → materialized path, 자식 유무에 따른 삭제 처리, 댓글 페이징
 - [ ] **Redis 도입** — 조회수 어뷰징 차단(`SETNX` + TTL) · `INCR` 카운터 · 주기적 DB 백업, 그리고 세션 저장소 분리(앱 2대로 세션 깨짐을 재현한 뒤 옮깁니다)
