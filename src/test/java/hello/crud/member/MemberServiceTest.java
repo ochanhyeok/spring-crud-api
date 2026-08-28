@@ -3,11 +3,11 @@ package hello.crud.member;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import hello.crud.common.NotFoundException;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
 import hello.crud.support.ServiceTestSupport;
@@ -72,7 +72,7 @@ class MemberServiceTest extends ServiceTestSupport {
 
 		// when & then
 		assertThatThrownBy(() -> memberService.findOne(999L))
-			.isInstanceOf(NoSuchElementException.class);
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	private MemberCreateRequest createRequest(String loginId) {

@@ -3,7 +3,6 @@ package hello.crud.comment;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +11,7 @@ import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.comment.dto.CommentResponse;
 import hello.crud.comment.dto.CommentUpdateRequest;
 import hello.crud.common.AccessDeniedException;
+import hello.crud.common.NotFoundException;
 import hello.crud.support.ServiceTestSupport;
 
 class CommentServiceTest extends ServiceTestSupport {
@@ -85,7 +85,7 @@ class CommentServiceTest extends ServiceTestSupport {
 
 		// when & then
 		assertThatThrownBy(() -> commentService.findOne(99L))
-			.isInstanceOf(NoSuchElementException.class);
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test

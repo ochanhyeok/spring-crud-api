@@ -3,7 +3,6 @@ package hello.crud.post;
 import static org.assertj.core.api.Assertions.*;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import hello.crud.comment.CommentService;
 import hello.crud.comment.dto.CommentCreateRequest;
 import hello.crud.common.AccessDeniedException;
+import hello.crud.common.NotFoundException;
 import hello.crud.post.dto.PostCreateRequest;
 import hello.crud.post.dto.PostResponse;
 import hello.crud.post.dto.PostUpdateRequest;
@@ -82,7 +82,7 @@ class PostServiceTest extends ServiceTestSupport {
 
 		// when & then
 		assertThatThrownBy(() -> postService.findOne(999L))
-			.isInstanceOf(NoSuchElementException.class);
+			.isInstanceOf(NotFoundException.class);
 	}
 
 	@Test
