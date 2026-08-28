@@ -11,6 +11,7 @@
 > - [테스트 공통 코드 추출과 그 비용: DRY보다 DAMP](https://velog.io/@ochhs0829/%EC%A4%91%EB%B3%B5-%EC%A0%9C%EA%B1%B0-%EA%B8%B0%EC%A4%80%EA%B3%BC-%ED%85%8C%EC%8A%A4%ED%8A%B8-%EA%B3%B5%ED%86%B5-%EC%BD%94%EB%93%9C-%EC%A0%95%EB%A6%AC)
 > - [게시글 조회수 붙이기: 원자적 UPDATE와 readOnly 트랜잭션](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%EA%B8%80-%EC%A1%B0%ED%9A%8C%EC%88%98-%EB%B6%99%EC%9D%B4%EA%B8%B0-%EC%9B%90%EC%9E%90%EC%A0%81-UPDATE%EC%99%80-readOnly-%ED%8A%B8%EB%9E%9C%EC%9E%AD%EC%85%98)
 > - [게시판에 로그인 붙이기: JWT 대신 세션을 고른 이유](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%ED%8C%90%EC%97%90-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EB%B6%99%EC%9D%B4%EA%B8%B0-JWT-%EB%8C%80%EC%8B%A0-%EC%84%B8%EC%85%98%EC%9D%84-%EA%B3%A0%EB%A5%B8-%EC%9D%B4%EC%9C%A0)
+> - [게시글 소프트 삭제: 변경 감지와 벌크 연산의 충돌](https://velog.io/@ochhs0829/%EA%B2%8C%EC%8B%9C%EA%B8%80-%EC%86%8C%ED%94%84%ED%8A%B8-%EC%82%AD%EC%A0%9C-%EB%B3%80%EA%B2%BD-%EA%B0%90%EC%A7%80%EC%99%80-%EB%B2%8C%ED%81%AC-%EC%97%B0%EC%82%B0%EC%9D%98-%EC%B6%A9%EB%8F%8C)
 
 ## 기술 스택
 
@@ -156,6 +157,7 @@ erDiagram
 | 2026-08-19 | 인증 (Spring Security · BCrypt · 세션 로그인 · 경로별 접근 제어) |
 | 2026-08-20 | 인가 (게시글 · 댓글 수정, 작성자 본인 확인 → 403) |
 | 2026-08-23 | 소프트 삭제 (`deleted_at` · 게시글 삭제 시 댓글 연쇄 · 조회 제외) |
+| 2026-08-26 | 삭제 여부를 확인하지 않던 세 곳 보완 (댓글 작성 · 좋아요 두 곳) |
 
 **진행 예정**
 
