@@ -17,7 +17,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
 	Optional<Comment> findByIdAndDeletedAtIsNull(Long id);
 
-	@Modifying(flushAutomatically = true, clearAutomatically = true)
+	@Modifying(flushAutomatically = true)
 	@Query("update Comment c set c.deletedAt = :now where c.postId = :postId and c.deletedAt is null")
 	void softDeleteByPostId(@Param("postId") Long postId, @Param("now") LocalDateTime now);
 
