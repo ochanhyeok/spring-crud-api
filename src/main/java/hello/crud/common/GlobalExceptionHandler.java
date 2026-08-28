@@ -1,9 +1,7 @@
 package hello.crud.common;
 
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,47 +14,43 @@ import lombok.extern.slf4j.Slf4j;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-	@ExceptionHandler(NoSuchElementException.class)
-	public ResponseEntity<ErrorResponse> handleNotFound(NoSuchElementException e) {
-		ErrorResponse error = new ErrorResponse(
-			HttpStatus.NOT_FOUND.value(),
-			e.getMessage()
-		);
-		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
+	@ExceptionHandler(NotFoundException.class)
+	public ResponseEntity<ErrorResponse> handleNotFound(NotFoundException e) {
+		ErrorCode code = e.getErrorCode();
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public ResponseEntity<ErrorResponse> handleValidation(MethodArgumentNotValidException e) {
+		ErrorCode code = ErrorCode.INVALID_INPUT;
 		String message = e.getBindingResult().getFieldErrors().stream()
 			.map(err -> err.getField() + ": " + err.getDefaultMessage())
 			.collect(Collectors.joining(", "));
-
-		ErrorResponse error = new ErrorResponse(HttpStatus.BAD_REQUEST.value(), message);
-		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(ErrorCode.INVALID_INPUT, message));
 	}
 
 	@ExceptionHandler(Exception.class)
 	public ResponseEntity<ErrorResponse> handleException(Exception e) {
 		log.error("처리하지 못한 예외", e);
-		ErrorResponse error = new ErrorResponse(500, "서버 오류가 발생했습니다");
-		return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+		ErrorCode code = ErrorCode.INTERNAL_ERROR;
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 
 	@ExceptionHandler(DuplicateLikeException.class)
 	public ResponseEntity<ErrorResponse> handleDuplicateLike(DuplicateLikeException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.CONFLICT.value(), e.getMessage());
-		return ResponseEntity.status(HttpStatus.CONFLICT).body(error);
+		ErrorCode code = e.getErrorCode();
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 
 	@ExceptionHandler(LoginFailedException.class)
 	public ResponseEntity<ErrorResponse> handleLoginFailed(LoginFailedException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
-		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
+		ErrorCode code = e.getErrorCode();
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
-		ErrorResponse error = new ErrorResponse(HttpStatus.FORBIDDEN.value(), e.getMessage());
-		return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
+		ErrorCode code = e.getErrorCode();
+		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 }
