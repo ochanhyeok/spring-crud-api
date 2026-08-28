@@ -3,11 +3,11 @@ package hello.crud.common;
 import lombok.Getter;
 
 @Getter
-public class LoginFailedException extends RuntimeException {
+public class NotFoundException extends RuntimeException {
 
 	private final ErrorCode errorCode;
 
-	public LoginFailedException(ErrorCode errorCode) {
+	public NotFoundException(ErrorCode errorCode) {
 		super(errorCode.getMessage());
 		this.errorCode = errorCode;
 	}

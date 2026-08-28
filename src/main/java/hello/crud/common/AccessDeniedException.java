@@ -1,7 +1,14 @@
 package hello.crud.common;
 
-public class AccessDeniedException extends RuntimeException{
-	public AccessDeniedException(String message) {
-		super(message);
+import lombok.Getter;
+
+@Getter
+public class AccessDeniedException extends RuntimeException {
+
+	private final ErrorCode errorCode;
+
+	public AccessDeniedException(ErrorCode errorCode) {
+		super(errorCode.getMessage());
+		this.errorCode = errorCode;
 	}
 }

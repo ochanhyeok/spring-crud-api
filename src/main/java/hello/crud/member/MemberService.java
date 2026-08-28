@@ -1,12 +1,13 @@
 package hello.crud.member;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.common.ErrorCode;
+import hello.crud.common.NotFoundException;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,6 +41,6 @@ public class MemberService {
 	// Member 반환용 메서드
 	public Member findMemberById(Long id) {
 		return memberRepository.findById(id)
-			.orElseThrow(() -> new NoSuchElementException("회원이 없습니다. id=" + id));
+			.orElseThrow(() -> new NotFoundException(ErrorCode.MEMBER_NOT_FOUND));
 	}
 }

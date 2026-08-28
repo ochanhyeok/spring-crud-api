@@ -1,13 +1,14 @@
 package hello.crud.post;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import hello.crud.comment.CommentService;
 import hello.crud.common.AccessDeniedException;
+import hello.crud.common.ErrorCode;
+import hello.crud.common.NotFoundException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberService;
 import hello.crud.post.dto.PostCreateRequest;
@@ -53,7 +54,7 @@ public class PostService {
 	public PostResponse update(Long id, PostUpdateRequest request, Long memberId) {
 		Post post = findPostById(id);
 		if (!post.isWrittenBy(memberId)) {
-			throw new AccessDeniedException("작성자만 수정할 수 있습니다");
+			throw new AccessDeniedException(ErrorCode.NOT_AUTHOR);
 		}
 		post.update(request.getTitle(), request.getContent());
 		return PostResponse.of(post, getAuthorName(post));
@@ -63,7 +64,7 @@ public class PostService {
 	public void delete(Long postId, Long memberId) {
 		Post post = findPostById(postId);
 		if (!post.isWrittenBy(memberId)) {
-			throw new AccessDeniedException("작성자만 삭제할 수 있습니다.");
+			throw new AccessDeniedException(ErrorCode.NOT_AUTHOR);
 		}
 		post.delete();
 		commentService.deleteByPostId(postId);
@@ -71,7 +72,7 @@ public class PostService {
 
 	public Post findPostById(Long id) {
 		return postRepository.findByIdAndDeletedAtIsNull(id)
-			.orElseThrow(() -> new NoSuchElementException("게시글이 없습니다. id=" + id));
+			.orElseThrow(() -> new NotFoundException(ErrorCode.POST_NOT_FOUND));
 	}
 
 	private String getAuthorName(Post post) {

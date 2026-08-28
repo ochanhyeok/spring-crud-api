@@ -1,7 +1,5 @@
 package hello.crud.commentlike;
 
-import java.util.NoSuchElementException;
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -10,6 +8,8 @@ import hello.crud.comment.Comment;
 import hello.crud.comment.CommentRepository;
 import hello.crud.commentlike.dto.CommentLikeResponse;
 import hello.crud.common.DuplicateLikeException;
+import hello.crud.common.ErrorCode;
+import hello.crud.common.NotFoundException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
@@ -26,10 +26,10 @@ public class CommentLikeService {
 	@Transactional
 	public CommentLikeResponse like(Long commentId, Long memberId) {
 		if (!commentRepository.existsByIdAndDeletedAtIsNull(commentId)) {
-			throw new NoSuchElementException("댓글이 없습니다. id=" + commentId);
+			throw new NotFoundException(ErrorCode.COMMENT_NOT_FOUND);
 		}
 		if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
-			throw new DuplicateLikeException("이미 좋아요를 누른 댓글입니다.");
+			throw new DuplicateLikeException(ErrorCode.DUPLICATE_COMMENT_LIKE);
 		}
 
 		Comment comment = commentRepository.getReferenceById(commentId);
@@ -42,7 +42,7 @@ public class CommentLikeService {
 		try {
 			commentLikeRepository.save(commentLike);
 		} catch (DataIntegrityViolationException e) {
-			throw new DuplicateLikeException("이미 좋아요를 누른 댓글입니다.");
+			throw new DuplicateLikeException(ErrorCode.DUPLICATE_COMMENT_LIKE);
 		}
 
 		long likeCount = commentLikeRepository.countByCommentId(commentId);

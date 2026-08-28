@@ -4,6 +4,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import hello.crud.auth.dto.LoginRequest;
+import hello.crud.common.ErrorCode;
 import hello.crud.common.LoginFailedException;
 import hello.crud.member.Member;
 import hello.crud.member.MemberRepository;
@@ -20,10 +21,10 @@ public class AuthService {
 
 	public LoginMember login(LoginRequest request) {
 		Member member = memberRepository.findByLoginId(request.getLoginId())
-			.orElseThrow(() -> new LoginFailedException(LOGIN_FAILED_MESSAGE));
+			.orElseThrow(() -> new LoginFailedException(ErrorCode.LOGIN_FAILED));
 
 		if (!passwordEncoder.matches(request.getPassword(), member.getPassword())) {
-			throw new LoginFailedException(LOGIN_FAILED_MESSAGE);
+			throw new LoginFailedException(ErrorCode.LOGIN_FAILED);
 		}
 
 		return new LoginMember(member.getId());

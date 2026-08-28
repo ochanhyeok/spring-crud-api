@@ -1,7 +1,14 @@
 package hello.crud.common;
 
+import lombok.Getter;
+
+@Getter
 public class DuplicateLikeException extends RuntimeException {
-	public DuplicateLikeException(String message) {
-		super(message);
+
+	private final ErrorCode errorCode;
+
+	public DuplicateLikeException(ErrorCode errorCode) {
+		super(errorCode.getMessage());
+		this.errorCode = errorCode;
 	}
 }
