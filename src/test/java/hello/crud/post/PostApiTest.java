@@ -84,7 +84,11 @@ class PostApiTest extends ApiTestSupport {
 					.retrieve()
 					.body(PostResponse.class);
 			}
-		).isInstanceOf(HttpClientErrorException.NotFound.class);
+		).isInstanceOf(HttpClientErrorException.NotFound.class)
+		.satisfies(e -> {
+			String body = ((HttpClientErrorException)e).getResponseBodyAsString();
+			assertThat(body).contains("POST_NOT_FOUND");
+		});
 	}
 
 	@Test
@@ -120,7 +124,10 @@ class PostApiTest extends ApiTestSupport {
 			.body(request)
 			.retrieve()
 			.body(PostResponse.class))
-			.isInstanceOf(HttpClientErrorException.Unauthorized.class);
+			.isInstanceOf(HttpClientErrorException.Unauthorized.class)
+			.satisfies(e -> assertThat(
+				((HttpClientErrorException)e).getResponseBodyAsString()
+			).contains("UNAUTHENTICATED"));
 	}
 
 	@Test
@@ -182,7 +189,10 @@ class PostApiTest extends ApiTestSupport {
 			.body(request)
 			.retrieve()
 			.body(PostResponse.class))
-			.isInstanceOf(HttpClientErrorException.Forbidden.class);
+			.isInstanceOf(HttpClientErrorException.Forbidden.class)
+			.satisfies(e -> assertThat(
+				((HttpClientErrorException)e).getResponseBodyAsString()
+			).contains("NOT_AUTHOR"));
 	}
 
 	@Test
