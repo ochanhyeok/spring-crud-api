@@ -2,6 +2,7 @@ package hello.crud.post;
 
 import java.time.LocalDateTime;
 
+import hello.crud.common.BaseTimeEntity;
 import hello.crud.member.Member;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Post {
+public class Post extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

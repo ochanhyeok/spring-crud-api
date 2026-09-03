@@ -75,10 +75,10 @@ class MemberServiceTest extends ServiceTestSupport {
 	@Test
 	void 중복_아이디로_가입하면_예외() {
 		// given
-		memberService.create(createRequest("test1"));
+		memberService.create(createRequest("duplicate123"));
 
 		// when & then
-		assertThatThrownBy(() -> memberService.create(createRequest("test1")))
+		assertThatThrownBy(() -> memberService.create(createRequest("duplicate123")))
 			.isInstanceOf(DuplicateException.class);
 	}
 

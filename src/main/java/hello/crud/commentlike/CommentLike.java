@@ -1,6 +1,7 @@
 package hello.crud.commentlike;
 
 import hello.crud.comment.Comment;
+import hello.crud.common.BaseTimeEntity;
 import hello.crud.member.Member;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CommentLike {
+public class CommentLike extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

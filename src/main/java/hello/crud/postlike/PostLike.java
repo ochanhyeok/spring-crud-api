@@ -1,5 +1,6 @@
 package hello.crud.postlike;
 
+import hello.crud.common.BaseTimeEntity;
 import hello.crud.member.Member;
 import hello.crud.post.Post;
 import jakarta.persistence.Entity;
@@ -29,7 +30,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostLike {
+public class PostLike extends BaseTimeEntity {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
