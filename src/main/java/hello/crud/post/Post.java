@@ -3,6 +3,7 @@ package hello.crud.post;
 import java.time.LocalDateTime;
 
 import hello.crud.member.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -23,7 +24,11 @@ public class Post {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Column(length = 100)
 	private String title;
+
+	@Column(length = 3000)
 	private String content;
 	private long viewCount = 0L;
 	private LocalDateTime deletedAt;

@@ -3,6 +3,7 @@ package hello.crud.comment;
 import java.time.LocalDateTime;
 
 import hello.crud.member.Member;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +23,8 @@ public class Comment {
 
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Column(length = 500)
 	private String content;
 
 	private Long postId;
