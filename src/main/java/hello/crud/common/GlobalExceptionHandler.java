@@ -36,8 +36,8 @@ public class GlobalExceptionHandler {
 		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}
 
-	@ExceptionHandler(DuplicateLikeException.class)
-	public ResponseEntity<ErrorResponse> handleDuplicateLike(DuplicateLikeException e) {
+	@ExceptionHandler(DuplicateException.class)
+	public ResponseEntity<ErrorResponse> handleDuplicateLike(DuplicateException e) {
 		ErrorCode code = e.getErrorCode();
 		return ResponseEntity.status(code.getStatus()).body(ErrorResponse.of(code));
 	}

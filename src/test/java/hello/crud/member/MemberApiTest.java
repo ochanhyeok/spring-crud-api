@@ -85,6 +85,19 @@ class MemberApiTest extends ApiTestSupport {
 			.isInstanceOf(HttpClientErrorException.BadRequest.class);
 	}
 
+	@Test
+	void 중복_아이디_가입_409() {
+		// given
+		apiTestDataFactory.createMember("ohchanhyeok123", "손흥민");
+
+		// when & then
+		assertThatThrownBy(() -> apiTestDataFactory.createMember("ohchanhyeok123", "박지성"))
+			.isInstanceOf(HttpClientErrorException.Conflict.class)
+			.satisfies(e -> assertThat(
+				((HttpClientErrorException)e).getResponseBodyAsString()
+			).contains("DUPLICATE_LOGIN_ID"));
+	}
+
 	public MemberResponse createMember(String loginId, String name) {
 		MemberCreateRequest request = new MemberCreateRequest();
 		request.setLoginId(loginId);

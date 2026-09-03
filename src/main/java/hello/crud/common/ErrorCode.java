@@ -16,6 +16,7 @@ public enum ErrorCode {
 	MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "회원이 없습니다."),
 	DUPLICATE_POST_LIKE(HttpStatus.CONFLICT, "이미 좋아요를 누른 게시글입니다."),
 	DUPLICATE_COMMENT_LIKE(HttpStatus.CONFLICT, "이미 좋아요를 누른 댓글입니다."),
+	DUPLICATE_LOGIN_ID(HttpStatus.CONFLICT, "이미 사용 중인 아이디입니다."),
 	INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "서버 오류가 발생했습니다."),
 	;
 

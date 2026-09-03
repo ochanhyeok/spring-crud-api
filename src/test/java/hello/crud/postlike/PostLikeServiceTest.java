@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import hello.crud.common.DuplicateLikeException;
+import hello.crud.common.DuplicateException;
 import hello.crud.postlike.dto.PostLikeResponse;
 import hello.crud.support.ServiceTestSupport;
 
@@ -54,7 +54,7 @@ class PostLikeServiceTest extends ServiceTestSupport {
 
 		// when & then
 		assertThatThrownBy(() -> postLikeService.like(postId, memberId))
-			.isInstanceOf(DuplicateLikeException.class);
+			.isInstanceOf(DuplicateException.class);
 	}
 
 	@Test

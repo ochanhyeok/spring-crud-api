@@ -7,6 +7,7 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import hello.crud.common.DuplicateException;
 import hello.crud.common.NotFoundException;
 import hello.crud.member.dto.MemberCreateRequest;
 import hello.crud.member.dto.MemberResponse;
@@ -34,8 +35,7 @@ class MemberServiceTest extends ServiceTestSupport {
 	@Test
 	void findOne() {
 		// given
-		MemberCreateRequest request = createRequest("ohchanhyeok123");
-		MemberResponse response = memberService.create(request);
+		MemberResponse response = memberService.create(createRequest("ohchanhyeok123"));
 
 		// when
 		MemberResponse saved = memberService.findOne(response.getId());
@@ -48,10 +48,8 @@ class MemberServiceTest extends ServiceTestSupport {
 	@Test
 	void findAll() {
 		// given
-		MemberCreateRequest request1 = createRequest("ohchanhyeok123");
-		MemberCreateRequest request2 = createRequest("ochhs0822");
-		MemberResponse response1 = memberService.create(request1);
-		MemberResponse response2 = memberService.create(request2);
+		MemberResponse response1 = memberService.create(createRequest("ohchanhyeok123"));
+		MemberResponse response2 = memberService.create(createRequest("ochhs0822"));
 
 		// when
 		List<MemberResponse> responses = memberService.findAll();
@@ -67,12 +65,21 @@ class MemberServiceTest extends ServiceTestSupport {
 	@Test
 	void findOne_없는_id_예외() {
 		// given
-		MemberCreateRequest request = createRequest("ohchanhyeok123");
-		memberService.create(request);
+		memberService.create(createRequest("ohchanhyeok123"));
 
 		// when & then
 		assertThatThrownBy(() -> memberService.findOne(999L))
 			.isInstanceOf(NotFoundException.class);
+	}
+
+	@Test
+	void 중복_아이디로_가입하면_예외() {
+		// given
+		memberService.create(createRequest("test1"));
+
+		// when & then
+		assertThatThrownBy(() -> memberService.create(createRequest("test1")))
+			.isInstanceOf(DuplicateException.class);
 	}
 
 	private MemberCreateRequest createRequest(String loginId) {

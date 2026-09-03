@@ -7,7 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import hello.crud.comment.Comment;
 import hello.crud.comment.CommentRepository;
 import hello.crud.commentlike.dto.CommentLikeResponse;
-import hello.crud.common.DuplicateLikeException;
+import hello.crud.common.DuplicateException;
 import hello.crud.common.ErrorCode;
 import hello.crud.common.NotFoundException;
 import hello.crud.member.Member;
@@ -29,7 +29,7 @@ public class CommentLikeService {
 			throw new NotFoundException(ErrorCode.COMMENT_NOT_FOUND);
 		}
 		if (commentLikeRepository.existsByCommentIdAndMemberId(commentId, memberId)) {
-			throw new DuplicateLikeException(ErrorCode.DUPLICATE_COMMENT_LIKE);
+			throw new DuplicateException(ErrorCode.DUPLICATE_COMMENT_LIKE);
 		}
 
 		Comment comment = commentRepository.getReferenceById(commentId);
@@ -42,7 +42,7 @@ public class CommentLikeService {
 		try {
 			commentLikeRepository.save(commentLike);
 		} catch (DataIntegrityViolationException e) {
-			throw new DuplicateLikeException(ErrorCode.DUPLICATE_COMMENT_LIKE);
+			throw new DuplicateException(ErrorCode.DUPLICATE_COMMENT_LIKE);
 		}
 
 		long likeCount = commentLikeRepository.countByCommentId(commentId);

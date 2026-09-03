@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import hello.crud.commentlike.dto.CommentLikeResponse;
-import hello.crud.common.DuplicateLikeException;
+import hello.crud.common.DuplicateException;
 import hello.crud.support.ServiceTestSupport;
 
 class CommentLikeServiceTest extends ServiceTestSupport {
@@ -55,7 +55,7 @@ class CommentLikeServiceTest extends ServiceTestSupport {
 
 		// when & then
 		assertThatThrownBy(() -> commentLikeService.like(commentId, memberId))
-			.isInstanceOf(DuplicateLikeException.class);
+			.isInstanceOf(DuplicateException.class);
 	}
 
 	@Test

@@ -2,10 +2,12 @@ package hello.crud.member;
 
 import java.util.List;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import hello.crud.common.DuplicateException;
 import hello.crud.common.ErrorCode;
 import hello.crud.common.NotFoundException;
 import hello.crud.member.dto.MemberCreateRequest;
@@ -22,8 +24,16 @@ public class MemberService {
 
 	@Transactional
 	public MemberResponse create(MemberCreateRequest request) {
-		Member member = new Member(request.getLoginId(), request.getName(), passwordEncoder.encode(request.getPassword()));
-		memberRepository.save(member);
+		if (memberRepository.existsByLoginId(request.getLoginId())) {
+			throw new DuplicateException(ErrorCode.DUPLICATE_LOGIN_ID);
+		}
+		Member member = new Member(request.getLoginId(), request.getName(),
+			passwordEncoder.encode(request.getPassword()));
+		try {
+			memberRepository.save(member);
+		} catch (DataIntegrityViolationException e) {
+			throw new DuplicateException(ErrorCode.DUPLICATE_LOGIN_ID);
+		}
 		return MemberResponse.of(member);
 	}
 

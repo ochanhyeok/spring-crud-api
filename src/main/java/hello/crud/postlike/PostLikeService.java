@@ -4,7 +4,7 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import hello.crud.common.DuplicateLikeException;
+import hello.crud.common.DuplicateException;
 import hello.crud.common.ErrorCode;
 import hello.crud.common.NotFoundException;
 import hello.crud.member.Member;
@@ -29,7 +29,7 @@ public class PostLikeService {
 			throw new NotFoundException(ErrorCode.POST_NOT_FOUND);
 		}
 		if (postLikeRepository.existsByPostIdAndMemberId(postId, memberId)) {
-			throw new DuplicateLikeException(ErrorCode.DUPLICATE_POST_LIKE);
+			throw new DuplicateException(ErrorCode.DUPLICATE_POST_LIKE);
 		}
 
 		Post post = postRepository.getReferenceById(postId);
@@ -42,7 +42,7 @@ public class PostLikeService {
 		try {
 			postLikeRepository.save(postLike);
 		} catch (DataIntegrityViolationException e) {
-			throw new DuplicateLikeException(ErrorCode.DUPLICATE_POST_LIKE);
+			throw new DuplicateException(ErrorCode.DUPLICATE_POST_LIKE);
 		}
 		Long likeCount = postLikeRepository.countByPostId(postId);
 
