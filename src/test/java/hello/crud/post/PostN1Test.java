@@ -38,7 +38,7 @@ class PostN1Test extends ServiceTestSupport {
 		stats.clear();
 
 		// when
-		List<PostResponse> postResponses = postService.findAll();
+		List<PostResponse> postResponses = postService.findAll(1L);
 
 		// then
 		long queryCount = stats.getPrepareStatementCount();
@@ -49,6 +49,7 @@ class PostN1Test extends ServiceTestSupport {
 
 	private PostCreateRequest createPostRequest(String title) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle(title);
 		request.setContent("내용입니다.");
 		return request;

@@ -64,7 +64,7 @@ class PostServiceTest extends ServiceTestSupport {
 		PostResponse response2 = postService.create(createPostRequest("제목2"), memberId2);
 
 		// when
-		List<PostResponse> postResponses = postService.findAll();
+		List<PostResponse> postResponses = postService.findAll(1L);
 
 		// then
 		assertThat(postResponses.size()).isEqualTo(2);
@@ -130,6 +130,7 @@ class PostServiceTest extends ServiceTestSupport {
 
 	private PostCreateRequest createPostRequest(String title) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle(title);
 		request.setContent("내용입니다.");
 		return request;

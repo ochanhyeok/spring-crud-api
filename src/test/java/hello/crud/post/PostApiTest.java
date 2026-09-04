@@ -61,7 +61,7 @@ class PostApiTest extends ApiTestSupport {
 
 		// when
 		List<PostResponse> responses = restClient.get()
-			.uri("/api/posts")
+			.uri("/api/posts?boardId=1")
 			.retrieve()
 			.body(new ParameterizedTypeReference<List<PostResponse>>() {
 			});
@@ -284,7 +284,7 @@ class PostApiTest extends ApiTestSupport {
 			.toBodilessEntity();
 
 		// when
-		List<PostResponse> responses = restClient.get().uri("/api/posts")
+		List<PostResponse> responses = restClient.get().uri("/api/posts?boardId=1")
 			.retrieve()
 			.body(new ParameterizedTypeReference<List<PostResponse>>() {
 			});
@@ -297,6 +297,7 @@ class PostApiTest extends ApiTestSupport {
 
 	private PostResponse createPost(String title) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle(title);
 		request.setContent("내용");
 

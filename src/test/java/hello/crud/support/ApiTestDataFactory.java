@@ -28,6 +28,7 @@ public class ApiTestDataFactory {
 
 	public PostResponse createPost(String title) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle(title);
 		request.setContent("내용");
 

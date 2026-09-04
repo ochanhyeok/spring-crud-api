@@ -28,6 +28,7 @@ public class TestDataFactory {
 
 	public Long createPost(Long memberId) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle("제목");
 		request.setContent("내용");
 		return postService.create(request, memberId).getId();
@@ -35,6 +36,7 @@ public class TestDataFactory {
 
 	public Long createPost(String title, Long memberId) {
 		PostCreateRequest request = new PostCreateRequest();
+		request.setBoardId(1L);
 		request.setTitle(title);
 		request.setContent("내용");
 		return postService.create(request, memberId).getId();
