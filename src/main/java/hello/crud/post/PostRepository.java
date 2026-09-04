@@ -16,7 +16,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
 	void increaseViewCount(@Param("id") Long id);
 
 	@EntityGraph(attributePaths = "member")
-	List<Post> findAllByDeletedAtIsNull();
+	List<Post> findAllByBoardIdAndDeletedAtIsNull(Long boardId);
 
 	Optional<Post> findByIdAndDeletedAtIsNull(Long id);
 

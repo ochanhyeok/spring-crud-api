@@ -29,6 +29,7 @@ public class PostService {
 	public PostResponse create(PostCreateRequest request, Long memberId) {
 		Member member = memberService.findMemberById(memberId);
 		Post post = Post.builder()
+			.boardId(request.getBoardId())
 			.title(request.getTitle())
 			.content(request.getContent())
 			.member(member)
@@ -37,8 +38,8 @@ public class PostService {
 		return PostResponse.of(post, getAuthorName(post));
 	}
 
-	public List<PostResponse> findAll() {
-		return postRepository.findAllByDeletedAtIsNull().stream()
+	public List<PostResponse> findAll(Long boardId) {
+		return postRepository.findAllByBoardIdAndDeletedAtIsNull(boardId).stream()
 			.map(post -> PostResponse.of(post, getAuthorName(post)))
 			.toList();
 	}

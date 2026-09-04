@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import hello.crud.auth.LoginMember;
@@ -40,8 +41,8 @@ public class PostController {
 	}
 
 	@GetMapping
-	public List<PostResponse> getPosts() {
-		return postService.findAll();
+	public List<PostResponse> getPosts(@RequestParam Long boardId) {
+		return postService.findAll(boardId);
 	}
 
 	@PutMapping("/{postId}")
