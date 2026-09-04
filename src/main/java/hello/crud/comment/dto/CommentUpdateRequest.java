@@ -8,6 +8,6 @@ import lombok.Data;
 public class CommentUpdateRequest {
 
 	@NotBlank(message = "댓글내용은 필수입니다")
-	@Size(max = 30)
+	@Size(max = 500)
 	private String content;
 }

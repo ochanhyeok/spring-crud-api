@@ -1,6 +1,7 @@
 package hello.crud.comment.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -8,8 +9,10 @@ import lombok.Data;
 public class CommentCreateRequest {
 
 	@NotBlank(message = "댓글내용은 필수입니다")
-	@Size(max = 30)
+	@Size(max = 500)
 	private String content;
+
+	@NotNull
 	private Long postId;
 
 }
